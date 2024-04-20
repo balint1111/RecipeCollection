@@ -29,5 +29,8 @@
     <Folder Include="Migrations\" />
     <Folder Include="Options\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.json" CopyToPublishDirectory="Always" />
+  </ItemGroup>
 
 </Project>
