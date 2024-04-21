@@ -1,8 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /RecipeCollection
 
-ENV ASPNETCORE_URLS=http://+:5001 DOTNET_RUNNING_IN_CONTAINER=true
-
 # Copy everything
 COPY . ./
 # Restore as distinct layers
