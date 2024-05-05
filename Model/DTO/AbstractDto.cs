@@ -13,5 +13,5 @@ public abstract class AbstractGetDto : AbstractDtoWithId
 }
 public abstract class AbstractDtoWithId
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
 }

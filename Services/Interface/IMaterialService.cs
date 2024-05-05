@@ -6,6 +6,7 @@ namespace EFGetStarted.Services.Interface
     {
         public Task<MaterialGetDto> GetById(int id);
         public Task<List<MaterialGetDto>> GetAll(bool showDeleted);
+        public Task<PageResponseDto<MaterialGetDto>> GetAllPageable(bool showDeleted, PageableDto pageable);
         public Task<List<MaterialGetDto>> GetAllByCategory(int materialCategoryId, bool showDeleted);
         public Task<List<MaterialGetDto>> GetAllByAllergens(List<int> allergenIds, bool showDeleted);
         public Task Create(MaterialPostDto material);

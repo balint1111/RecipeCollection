@@ -48,6 +48,20 @@ namespace EFGetStarted.Services
             return _materialMapper.ToList(materials);
         }
         
+        public async Task<PageResponseDto<MaterialGetDto>> GetAllPageable(
+            bool showDeleted,
+            PageableDto pageable
+        )
+        {
+            var query = _unitOfWork.GetRepository<Material>().GetAll()
+                .Let( it => showDeleted ? it.IgnoreQueryFilters() : it)
+                .Include(it => it.MaterialCategory)
+                .Include(it => it.MaterialAllergens)
+                .ThenInclude(it => it.Allergen)
+                .Where(it => it.Name.Contains(pageable.Filter));
+            return await pageable.ToPage(query, _materialMapper);
+        }
+        
         public async Task<List<MaterialGetDto>> GetAllByCategory(int materialCategoryId, bool showDeleted)
         {
             var materials = await _unitOfWork.GetRepository<Material>().GetAll()
@@ -102,6 +116,11 @@ namespace EFGetStarted.Services
             var newAllergenIds = material.allergenIds.Where(it => !oldAllergenIds.Contains(it)).ToList();
             var toDeleteAllergenIds = oldAllergenIds.Where(it => !newAllergenIds.Contains(it)).ToList();
             _unitOfWork.GetRepository<Material>().Update(_materialMapper.ToEntity(material));
+            var updated = await _unitOfWork.GetRepository<Material>().GetAll()
+                .Include(it => it.MaterialCategory)
+                .Include(it => it.MaterialAllergens)
+                .ThenInclude(it => it.Allergen)
+                .FirstOrDefaultAsync(it => it.Id == material.Id);
             
             foreach (var toDeleteAllergenId in toDeleteAllergenIds)
             {
@@ -110,19 +129,14 @@ namespace EFGetStarted.Services
                 await _unitOfWork.GetRepository<Material>().Delete(toDeleteMaterialAllergen!.Id);
             }
 
-            foreach (var materialAllergen in _materialMapper.AllergenIdsToMaterialAllergens(newAllergenIds,
-                         material.Id))
+            foreach (var materialAllergen in _materialMapper.AllergenIdsToMaterialAllergens(newAllergenIds, updated!.Id))
             {
                 await _unitOfWork.GetRepository<MaterialAllergen>().Create(materialAllergen);
             }
 
             await _unitOfWork.SaveChangesAsync();
             
-            var updated = await _unitOfWork.GetRepository<Material>().GetAll()
-                .Include(it => it.MaterialCategory)
-                .Include(it => it.MaterialAllergens)
-                .ThenInclude(it => it.Allergen)
-                .FirstOrDefaultAsync(it => it.Id == material.Id);
+            
             _cacheService.Set(updated!.Id, updated);
         }
 

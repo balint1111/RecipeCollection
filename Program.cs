@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using EFGetStarted;
 using EFGetStarted.Attributes;
 using EFGetStarted.Mapper;
@@ -34,18 +36,18 @@ builder.Services.AddScoped<MaterialCategoryMapper>();
 builder.Services.AddScoped<MaterialMapper>();
 builder.Services.AddScoped<IngredientMapper>();
 builder.Services.AddScoped<IngredientGroupMapper>();
+builder.Services.AddScoped<IngredientGroupFullMapper>();
 builder.Services.AddScoped<RecipeMapper>();
+builder.Services.AddScoped<RecipeFullMapper>();
 builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
-{
-    options.User.RequireUniqueEmail = true;
-})
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => { options.User.RequireUniqueEmail = true; })
     .AddEntityFrameworkStores<RecipeCollectionContext>()
     .AddDefaultTokenProviders();
 
 #region Db
+
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<RecipeCollectionContext>(options =>
 {
@@ -57,7 +59,6 @@ builder.Services.AddDbContext<RecipeCollectionContext>(options =>
 });
 
 #endregion
-
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -84,7 +85,6 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme."
-
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -97,15 +97,17 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            new string[] { }
         }
     });
 });
 
-
-
-
-
+builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+{
+    builder.WithOrigins("*")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+}));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -117,15 +119,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-});
+app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); });
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseCors("MyPolicy");
 
 app.UseAuthorization();
 
@@ -133,10 +133,7 @@ app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.UseMiddleware<RequestResponseMiddleware>();
 
 app.MapRazorPages();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 using (var scope = app.Services.CreateScope())
 {
     var cache = scope.ServiceProvider.GetService<ICacheService>();
@@ -145,5 +142,24 @@ using (var scope = app.Services.CreateScope())
         cache.SetCache();
     }
 }
+
 await app.Services.GetRequiredService<IUserService>().CreateAdminIfNotExist();
+string localIP = LocalIPAddress();
+
+app.Urls.Add("http://" + localIP + ":5000");
+app.Urls.Add("https://" + localIP + ":5001");
+
 app.Run();
+
+
+static string LocalIPAddress() {
+    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
+        socket.Connect("8.8.8.8", 65530);
+        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
+        if (endPoint != null) {
+            return endPoint.Address.ToString();
+        } else {
+            return "127.0.0.1";
+        }
+    }
+}

@@ -28,11 +28,14 @@ public class IngredientMapper: GenericMapper<Ingredient, IngredientPostDto, Ingr
     {
         return new Ingredient
         {
-            Id = dto.Id,
             Quantity = dto.Quantity,
             Unit = dto.Unit,
             MaterialId= dto.MaterialId
-        };
+        }.Let( it =>
+        {
+            if (dto.Id != null) it.Id = (int)dto.Id;
+            return it;
+        });
     }
 
     public override IngredientGetDto ToGetDto(Ingredient entity)

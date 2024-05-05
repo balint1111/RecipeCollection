@@ -17,9 +17,12 @@ public class MaterialCategoryMapper : GenericMapper<MaterialCategory, MaterialCa
     {
         return new MaterialCategory
         {
-            Id = dto.Id,
             Name = dto.Name
-        };
+        }.Let( it =>
+        {
+            if (dto.Id != null) it.Id = (int)dto.Id;
+            return it;
+        });
     }
     
     public override MaterialCategoryGetDto ToGetDto(MaterialCategory entity)

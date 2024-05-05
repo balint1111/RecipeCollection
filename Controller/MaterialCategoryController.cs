@@ -35,6 +35,19 @@ namespace EFGetStarted.Controller
         {
             return await _materialCategoryService.GetAll(showDeleted);
         }
+        
+        [Authorize(Roles = Roles.All)]
+        [HttpGet]
+        public async Task<PageResponseDto<MaterialCategoryGetDto>> GetAllPageable(
+            bool showDeleted,
+            int page = 1,
+            int pageSize = 10,
+            string? filter = ""
+            )
+        {
+            return await _materialCategoryService.GetAllPageable(showDeleted, new PageableDto(page, pageSize, filter ?? ""));
+        }
+        
 
         [Authorize(Roles = Roles.ADMIN)]
         [HttpPost]

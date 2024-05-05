@@ -36,6 +36,17 @@ namespace EFGetStarted.Services
             return _materialCategoryMapper.ToList(materialCategories);
         }
         
+        public async Task<PageResponseDto<MaterialCategoryGetDto>> GetAllPageable(
+            bool showDeleted,
+            PageableDto pageable
+        )
+        {
+            var query = _unitOfWork.GetRepository<MaterialCategory>().GetAll()
+                .Let( it => showDeleted ? it.IgnoreQueryFilters() : it)
+                .Where(it => it.Name.Contains(pageable.Filter));
+            return await pageable.ToPage(query, _materialCategoryMapper);
+        }
+        
         public async Task Create(MaterialCategoryPostDto materialCategory)
         {
             await _unitOfWork.GetRepository<MaterialCategory>().Create(_materialCategoryMapper.ToEntity(materialCategory));

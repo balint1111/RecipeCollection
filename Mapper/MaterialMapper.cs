@@ -26,10 +26,13 @@ public class MaterialMapper : GenericMapper<Material, MaterialPostDto, MaterialP
     {
         return new Material
         {
-            Id = dto.Id,
             Name = dto.Name,
             MaterialCategoryId = dto.MaterialCategoryId
-        };
+        }.Let( it =>
+        {
+            if (dto.Id != null) it.Id = (int)dto.Id;
+            return it;
+        });
     }
 
     public override MaterialGetDto ToGetDto(Material entity)

@@ -1,6 +1,5 @@
 ﻿using EFGetStarted.Attributes;
 using EFGetStarted.Model.DTO;
-using EFGetStarted.Model.Entity;
 using EFGetStarted.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +51,18 @@ namespace EFGetStarted.Controller
         
         [Authorize(Roles = Roles.All)]
         [HttpGet]
+        public async Task<PageResponseDto<RecipeGetDto>> GetAllPageable(
+            bool showDeleted,
+            int page = 1,
+            int pageSize = 10,
+            string? filter = ""
+        )
+        {
+            return await _recipeService.GetAllPageable(showDeleted, new PageableDto(page, pageSize, filter ?? ""));
+        }
+        
+        [Authorize(Roles = Roles.All)]
+        [HttpGet]
         public async Task<List<RecipeGetDto>> GetByMaterialId(int materialId, bool showDeleted = true)
         {
             return await _recipeService.GetByMaterialId(materialId, showDeleted);
@@ -64,6 +75,14 @@ namespace EFGetStarted.Controller
         {
             await _recipeService.Create(recipe);
         }
+        
+        [Authorize(Roles = $"{Roles.ADMIN},{Roles.RECIPE_WRITER}")]
+        [HttpPost]
+        [Transactional]
+        public async Task CreateFull(RecipeFullPostDto recipe)
+        {
+            await _recipeService.CreateFull(recipe);
+        }
 
         [Authorize(Roles = $"{Roles.ADMIN},{Roles.RECIPE_WRITER}")]
         [HttpPut]
@@ -71,6 +90,14 @@ namespace EFGetStarted.Controller
         public async Task Update(RecipePutDto recipe)
         {
             await _recipeService.Update(recipe);
+        }
+        
+        [Authorize(Roles = $"{Roles.ADMIN},{Roles.RECIPE_WRITER}")]
+        [HttpPut]
+        [Transactional]
+        public async Task UpdateFull(RecipeFullPutDto recipe)
+        {
+            await _recipeService.UpdateFull(recipe);
         }
 
         [Authorize(Roles = Roles.ADMIN)]

@@ -21,28 +21,40 @@ namespace EFGetStarted.Controller
         {
             _allergenService = allergenService;
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpGet("{id}")]
         public async Task<AllergenGetDto> GetById(int id)
         {
             return await _allergenService.GetById(id);
         }
-        
+
         [AllowAnonymous]
         [HttpGet]
         public async Task<List<AllergenGetDto>> GetAll(bool showDeleted)
         {
             return await _allergenService.GetAll(showDeleted);
         }
-        
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<PageResponseDto<AllergenGetDto>> GetAllPageable(
+            bool showDeleted,
+            int page = 1,
+            int pageSize = 10,
+            string? filter = ""
+        )
+        {
+            return await _allergenService.GetAllPageable(showDeleted, new PageableDto(page, pageSize, filter ?? ""));
+        }
+
         [Authorize(Roles = Roles.All)]
         [HttpPost]
         public async Task AddAllergen(int allergenId)
         {
             await _allergenService.AddAllergen(allergenId);
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpDelete]
         public async Task DeleteAllergen(int allergenId)

@@ -1,5 +1,6 @@
 ﻿using EFGetStarted.Model.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EFGetStarted.Repository
 {
@@ -26,6 +27,10 @@ namespace EFGetStarted.Repository
         {
             var createdEntity = await DbSet.AddAsync(entity);
             return createdEntity.Entity;
+        }
+        public Task<TEntity[]> CreateAll(List<TEntity> entities)
+        {
+            return Task.WhenAll(entities.Select(async entity => (await DbSet.AddAsync(entity)).Entity));
         }
 
         public void Update(TEntity entity)

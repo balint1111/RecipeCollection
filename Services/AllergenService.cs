@@ -43,6 +43,17 @@ namespace EFGetStarted.Services
             return _allergenMapper.ToList(allergens);
         }
         
+        public async Task<PageResponseDto<AllergenGetDto>> GetAllPageable(
+            bool showDeleted,
+            PageableDto pageable
+            )
+        {
+            var query = _unitOfWork.GetRepository<Allergen>().GetAll()
+                .Let(it => showDeleted ? it.IgnoreQueryFilters() : it)
+                .Where(allergen => allergen.Name.Contains(pageable.Filter));
+            return await pageable.ToPage(query, _allergenMapper);
+        }
+        
         public async Task AddAllergen(int allergenId)
         {
             var allergen = await _unitOfWork.GetRepository<Allergen>().GetAll()

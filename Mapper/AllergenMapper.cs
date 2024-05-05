@@ -28,9 +28,12 @@ public class AllergenMapper : GenericMapper<Allergen, AllergenPostDto, AllergenP
     {
         return new Allergen
         {
-            Id = dto.Id,
             Name = dto.Name
-        };
+        }.Let( it =>
+        {
+            if (dto.Id != null) it.Id = (int)dto.Id;
+            return it;
+        });
     }
 
     public override AllergenGetDto ToGetDto(Allergen entity)

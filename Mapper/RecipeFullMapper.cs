@@ -5,20 +5,21 @@ using EFGetStarted.UnitOfWork;
 
 namespace EFGetStarted.Mapper;
 
-public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, RecipeGetDto>
+public class RecipeFullMapper : GenericMapper<Recipe, RecipeFullPostDto, RecipeFullPutDto, RecipeGetDto>
 {
-    private readonly IngredientGroupMapper _ingredientGroupMapper;
+    private readonly IngredientGroupFullMapper _ingredientGroupMapper;
     private readonly IGenericRepository<UserFavorite> _userFavoriteRepository;
     private readonly CurrentUser _currentUser;
 
-    public RecipeMapper(IngredientGroupMapper ingredientGroupMapper, IUnitOfWork unitOfWork, CurrentUser currentUser)
+    public RecipeFullMapper(IngredientGroupFullMapper ingredientGroupMapper, IUnitOfWork unitOfWork,
+        CurrentUser currentUser)
     {
         _ingredientGroupMapper = ingredientGroupMapper;
         _userFavoriteRepository = unitOfWork.GetRepository<UserFavorite>();
         _currentUser = currentUser;
     }
 
-    public override Recipe ToEntity(RecipePostDto dto)
+    public override Recipe ToEntity(RecipeFullPostDto dto)
     {
         return new Recipe
         {
@@ -26,11 +27,14 @@ public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, R
             Code = dto.Code,
             Description = dto.Description,
             PreparationDuration = dto.PreparationDuration,
-            CookingDuration = dto.CookingDuration
+            CookingDuration = dto.CookingDuration,
+            IngredientGroups = dto.IngredientGroups.Select(
+                it => _ingredientGroupMapper.ToEntity(it)
+            ).ToList()
         };
     }
 
-    public override Recipe ToEntity(RecipePutDto dto)
+    public override Recipe ToEntity(RecipeFullPutDto dto)
     {
         return new Recipe
         {
@@ -38,7 +42,10 @@ public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, R
             Code = dto.Code,
             Description = dto.Description,
             PreparationDuration = dto.PreparationDuration,
-            CookingDuration = dto.CookingDuration
+            CookingDuration = dto.CookingDuration,
+            IngredientGroups = dto.IngredientGroups.Select(
+                it => _ingredientGroupMapper.ToEntity(it)
+            ).ToList()
         }.Let( it =>
         {
             if (dto.Id != null) it.Id = (int)dto.Id;
