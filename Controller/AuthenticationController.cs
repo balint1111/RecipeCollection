@@ -74,7 +74,7 @@ namespace EFGetStarted.Controller
                     expiration = token.ValidTo
                 });
             }
-            return Unauthorized();
+            throw new BadRequestException("Wrong username or password");
         }
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
