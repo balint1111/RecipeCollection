@@ -20,47 +20,61 @@ namespace EFGetStarted.Controller
         {
             _recipeService = recipeService;
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpGet("{id}")]
         public async Task<RecipeGetDto> GetById(int id)
         {
             return await _recipeService.GetById(id);
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpPost]
         public async Task AddFavorite(int recipeId)
         {
             await _recipeService.AddFavorite(recipeId);
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpDelete]
         public async Task DeleteFavorite(int recipeId)
         {
             await _recipeService.DeleteFavorite(recipeId);
         }
-        
+
         [AllowAnonymous]
         [HttpGet]
         public async Task<List<RecipeGetDto>> GetAll(bool showDeleted)
         {
             return await _recipeService.GetAll(showDeleted);
         }
-        
-        [Authorize(Roles = Roles.All)]
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<PageResponseDto<RecipeGetDto>> GetAllPageable(
             bool showDeleted,
+            bool justFavorites,
+            bool justOwn,
             int page = 1,
             int pageSize = 10,
-            string? filter = ""
+            string? filter = "",
+            string? sortField = null,
+            PageableDto.SortDirection? sortDirection = null
         )
         {
-            return await _recipeService.GetAllPageable(showDeleted, new PageableDto(page, pageSize, filter ?? ""));
+            var sort = sortDirection != null && sortField != null
+                ? new PageableDto.Sort(sortField, (PageableDto.SortDirection)sortDirection)
+                : null;
+            return await _recipeService.GetAllPageable(justFavorites, justOwn, showDeleted,
+                new PageableDto(
+                    page,
+                    pageSize,
+                    filter ?? "",
+                    sort
+                )
+            );
         }
-        
+
         [Authorize(Roles = Roles.All)]
         [HttpGet]
         public async Task<List<RecipeGetDto>> GetByMaterialId(int materialId, bool showDeleted = true)
@@ -75,7 +89,7 @@ namespace EFGetStarted.Controller
         {
             await _recipeService.Create(recipe);
         }
-        
+
         [Authorize(Roles = $"{Roles.ADMIN},{Roles.RECIPE_WRITER}")]
         [HttpPost]
         [Transactional]
@@ -91,7 +105,7 @@ namespace EFGetStarted.Controller
         {
             await _recipeService.Update(recipe);
         }
-        
+
         [Authorize(Roles = $"{Roles.ADMIN},{Roles.RECIPE_WRITER}")]
         [HttpPut]
         [Transactional]

@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using EFGetStarted.Exceptions;
 using EFGetStarted.Model.DTO;
 using EFGetStarted.Model.Entity;
 using EFGetStarted.Services.Interface;
@@ -54,14 +55,6 @@ namespace EFGetStarted.Services
 
         public async Task<bool> CreateUser(UserRegistrationDTO registrationDto, string[] roles)
         {
-            var existingUser = await _userManager.Users.IgnoreQueryFilters()
-                .Where(it => it.UserName == registrationDto.UserName)
-                .FirstOrDefaultAsync();
-            if (existingUser != null)
-            {
-                return false;
-            }
-
             ApplicationUser admin = new ApplicationUser()
             {
                 Email = registrationDto.Email,
@@ -73,7 +66,7 @@ namespace EFGetStarted.Services
                 Deleted = false
             };
             var user = await _userManager.CreateAsync(admin, registrationDto.Password);
-            if (!user.Succeeded) return false;
+            if (user.Errors.Count() != 0) throw new BadRequestException(String.Join(", ", user.Errors.Select(it => it.Description)));
             await _userManager.AddToRolesAsync(admin, roles);
             await _userManager.AddClaimsAsync(admin, roles.Select(it => new Claim(ClaimTypes.Role, it)));
             return true;

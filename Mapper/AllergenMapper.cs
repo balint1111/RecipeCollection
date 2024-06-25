@@ -20,7 +20,8 @@ public class AllergenMapper : GenericMapper<Allergen, AllergenPostDto, AllergenP
     {
         return new Allergen
         {
-            Name = dto.Name
+            Name = dto.Name,
+            ImgBase64 = dto.ImgBase64
         };
     }
 
@@ -28,7 +29,8 @@ public class AllergenMapper : GenericMapper<Allergen, AllergenPostDto, AllergenP
     {
         return new Allergen
         {
-            Name = dto.Name
+            Name = dto.Name,
+            ImgBase64 = dto.ImgBase64
         }.Let( it =>
         {
             if (dto.Id != null) it.Id = (int)dto.Id;
@@ -43,6 +45,7 @@ public class AllergenMapper : GenericMapper<Allergen, AllergenPostDto, AllergenP
         {
             Id = entity.Id,
             Name = entity.Name,
+            ImgBase64 = entity.ImgBase64,
             IsUserAllergen = _userAllergenRepository.GetAll()
                 .Where(it => it.UserId == userId && it.AllergenId == entity.Id)
                 .ToList().Count != 0

@@ -10,6 +10,8 @@ public class RecipePostDto : AbstractPostDto
     public List<int> IngredientGroupIds { get; set; }
     public long PreparationDuration { get; set; } = 0;
     public long CookingDuration { get; set; }
+    
+    public string? ImgBase64 { get; set; }
 }
 
 public class RecipeFullPostDto : AbstractPostDto
@@ -21,6 +23,7 @@ public class RecipeFullPostDto : AbstractPostDto
     public List<IngredientGroupFullPostDto> IngredientGroups { get; set; }
     public long PreparationDuration { get; set; } = 0;
     public long CookingDuration { get; set; }
+    public string? ImgBase64 { get; set; }
 }
 
 public class RecipePutDto : AbstractPutDto
@@ -31,6 +34,7 @@ public class RecipePutDto : AbstractPutDto
     public List<int> IngredientGroupsIds { get; set; }
     public long PreparationDuration { get; set; } = 0;
     public long CookingDuration { get; set; }
+    public string? ImgBase64 { get; set; }
 }
 
 public class RecipeFullPutDto : AbstractPutDto
@@ -41,6 +45,7 @@ public class RecipeFullPutDto : AbstractPutDto
     public List<IngredientGroupFullPutDto> IngredientGroups { get; set; }
     public long PreparationDuration { get; set; } = 0;
     public long CookingDuration { get; set; }
+    public string? ImgBase64 { get; set; }
 }
 public class RecipeGetDto : AbstractGetDto
 {
@@ -51,6 +56,8 @@ public class RecipeGetDto : AbstractGetDto
     public List<IngredientGroupGetDto> IngredientGroups { get; set; }
     public long PreparationDuration { get; set; }
     public long CookingDuration { get; set; }
+    public int createdBy { get; set; }
+    public string? ImgBase64 { get; set; }
 
     public long TotalDuration => PreparationDuration + CookingDuration;
     

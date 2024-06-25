@@ -26,7 +26,9 @@ public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, R
             Code = dto.Code,
             Description = dto.Description,
             PreparationDuration = dto.PreparationDuration,
-            CookingDuration = dto.CookingDuration
+            CookingDuration = dto.CookingDuration,
+            CreatedByUserId = (int)_currentUser.UserId()!,
+            ImgBase64 = dto.ImgBase64
         };
     }
 
@@ -38,7 +40,8 @@ public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, R
             Code = dto.Code,
             Description = dto.Description,
             PreparationDuration = dto.PreparationDuration,
-            CookingDuration = dto.CookingDuration
+            CookingDuration = dto.CookingDuration,
+            ImgBase64 = dto.ImgBase64
         }.Let( it =>
         {
             if (dto.Id != null) it.Id = (int)dto.Id;
@@ -60,7 +63,9 @@ public class RecipeMapper : GenericMapper<Recipe, RecipePostDto, RecipePutDto, R
             IngredientGroups = entity.IngredientGroups.Select(it => _ingredientGroupMapper.ToGetDto(it)).ToList(),
             IsFavorite = _userFavoriteRepository.GetAll()
                 .Where(it => it.UserId == userId && it.RecipeId == entity.Id)
-                .ToList().Count != 0
+                .ToList().Count != 0,
+            createdBy = entity.CreatedByUserId,
+            ImgBase64 = entity.ImgBase64
         };
     }
 

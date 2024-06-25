@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using EFGetStarted.Exceptions;
 using EFGetStarted.Model.DTO;
 using EFGetStarted.Model.Entity;
 using EFGetStarted.Services;
@@ -40,13 +41,7 @@ namespace EFGetStarted.Controller
         [HttpPost]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationDTO userForRegistration)
         {
-            if (_userManager.Users.Any(u =>
-                    u.UserName == userForRegistration.UserName || u.Email == userForRegistration.Email))
-            {
-                throw new ApplicationException("Username/Email already exists!");
-            }
-
-            var result = await _userService.CreateUser(userForRegistration, new[] { Roles.RECIPE_READER });
+            var result = await _userService.CreateUser(userForRegistration, new[] { Roles.RECIPE_READER, Roles.RECIPE_WRITER });
             return result ? StatusCode(201) : throw new ApplicationException("Registration failed!");
         }
         

@@ -1,1 +1,1 @@
-sudo git pull && sudo docker image build -t recipe-collection -f Dockerfile . && sudo docker stop $(sudo docker ps -a -q) && sudo docker run -p 80:80 -d recipe-collection:latest && sudo docker system prune --force
+cd /home/hellopay/RecipeCollection && sudo git pull && sudo docker image build -t recipe-collection -f Dockerfile . && sudo docker stop $(sudo docker ps -a -q) && sudo docker run -p 5001:80 -d recipe-collection:latest && sudo docker system prune --force && cd -

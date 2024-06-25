@@ -8,7 +8,8 @@ namespace EFGetStarted.Services.Interface
 
         public Task<List<RecipeGetDto>> GetAll(bool showDeleted);
         
-        public Task<PageResponseDto<RecipeGetDto>> GetAllPageable(bool showDeleted, PageableDto pageable);
+        public Task<PageResponseDto<RecipeGetDto>> GetAllPageable(bool justFavorites, bool justOwn, bool showDeleted,
+            PageableDto pageable);
         public Task<List<RecipeGetDto>> GetByMaterialId(int materialId, bool showDeleted);
 
         public Task AddFavorite(int recipeId);

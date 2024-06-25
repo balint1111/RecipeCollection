@@ -10,7 +10,7 @@ public class UserFavorite : AbstractEntity
     [Required]
     public int RecipeId { get; set; }
     [ForeignKey("RecipeId")]
-    public Allergen Recipe { get; set; }
+    public Recipe Recipe { get; set; }
     [Required]
     public int UserId { get; set; }
     [ForeignKey("UserId")]

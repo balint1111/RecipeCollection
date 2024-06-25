@@ -1,4 +1,7 @@
-﻿using EFGetStarted.Attributes;
+﻿using System.ComponentModel;
+using System.Linq.Expressions;
+using System.Reflection;
+using EFGetStarted.Attributes;
 using EFGetStarted.Exceptions;
 using EFGetStarted.Mapper;
 using EFGetStarted.Model.DTO;
@@ -57,10 +60,14 @@ namespace EFGetStarted.Services
         }
 
         public async Task<PageResponseDto<RecipeGetDto>> GetAllPageable(
+            bool justFavorites,
+            bool justOwn,
             bool showDeleted,
-            PageableDto pageable
-        )
+            PageableDto pageable)
         {
+            var userFavorites = _unitOfWork.GetRepository<UserFavorite>().GetAll()
+                .Where(it => it.UserId == _currentUser.UserId()).ToList().Select(it => it.RecipeId);
+            PropertyDescriptor prop = TypeDescriptor.GetProperties(typeof(Recipe)).Find("Name", true)!;
             var query = _unitOfWork.GetRepository<Recipe>().GetAll()
                 .Let(it => showDeleted ? it.IgnoreQueryFilters() : it)
                 .Include(it => it.IngredientGroups)
@@ -69,7 +76,12 @@ namespace EFGetStarted.Services
                 .Include(it => it.IngredientGroups)
                 .ThenInclude(it => it.Ingredients)
                 .ThenInclude(it => it.Material.MaterialAllergens)
-                .ThenInclude(it => it.Allergen);
+                .ThenInclude(it => it.Allergen)
+                .Where(recipe =>
+                    recipe.Name.Contains(pageable.Filter)
+                    && (justOwn == false || recipe.CreatedByUserId == _currentUser.UserId())
+                    && (justFavorites == false ||
+                        userFavorites.Contains(recipe.Id)));
             return await pageable.ToPage(query, _recipeMapper);
         }
 
@@ -149,6 +161,8 @@ namespace EFGetStarted.Services
         [Transactional]
         public async Task UpdateFull(RecipeFullPutDto recipe)
         {
+            var oldRecipe = await _unitOfWork.GetRepository<Recipe>().GetAll()
+                .FirstOrDefaultAsync(it => it.Id == recipe.Id);
             var oldIngredientGroups = _unitOfWork.GetRepository<IngredientGroup>().GetAll()
                 .Include(it => it.Ingredients)
                 .Where(it => it!.RecipeId == recipe.Id).ToList();
@@ -165,15 +179,22 @@ namespace EFGetStarted.Services
             _unitOfWork.Context().ChangeTracker.Clear();
 
             var recipeEntity = _recipeFullMapper.ToEntity(recipe);
+            recipeEntity.CreatedByUserId = (int)oldRecipe?.CreatedByUserId!;
             _unitOfWork.GetRepository<Recipe>().Update(recipeEntity);
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task Update(RecipePutDto recipe)
         {
+            var oldRecipe = await _unitOfWork.GetRepository<Recipe>().GetAll()
+                .FirstOrDefaultAsync(it => it.Id == recipe.Id);
             var oldIngredientGroups = _unitOfWork.GetRepository<IngredientGroup>().GetAll()
                 .Where(it => it!.RecipeId == recipe.Id).ToList();
-            _unitOfWork.GetRepository<Recipe>().Update(_recipeMapper.ToEntity(recipe));
+
+            var recipeEntity = _recipeMapper.ToEntity(recipe);
+            recipeEntity.CreatedByUserId = (int)oldRecipe?.CreatedByUserId!;
+            _unitOfWork.GetRepository<Recipe>().Update(recipeEntity);
+
             foreach (var oldIngredientGroup in oldIngredientGroups)
             {
                 oldIngredientGroup!.RecipeId = null;

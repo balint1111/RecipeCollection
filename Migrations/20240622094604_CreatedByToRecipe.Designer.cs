@@ -4,6 +4,7 @@ using EFGetStarted;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFGetStarted.Migrations
 {
     [DbContext(typeof(RecipeCollectionContext))]
-    partial class RecipeCollectionContextModelSnapshot : ModelSnapshot
+    [Migration("20240622094604_CreatedByToRecipe")]
+    partial class CreatedByToRecipe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,10 +35,6 @@ namespace EFGetStarted.Migrations
 
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("ImgBase64")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -282,9 +281,6 @@ namespace EFGetStarted.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImgBase64")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -570,7 +566,7 @@ namespace EFGetStarted.Migrations
 
             modelBuilder.Entity("EFGetStarted.Model.Entity.UserFavorite", b =>
                 {
-                    b.HasOne("EFGetStarted.Model.Entity.Recipe", "Recipe")
+                    b.HasOne("EFGetStarted.Model.Entity.Allergen", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Restrict)

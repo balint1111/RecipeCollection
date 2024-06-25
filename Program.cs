@@ -51,7 +51,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options => { op
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<RecipeCollectionContext>(options =>
 {
+    Console.WriteLine(connectionString);
     var dbBuilder = options.UseSqlServer(connectionString);
+    dbBuilder.EnableSensitiveDataLogging();
     if (builder.Environment.IsDevelopment())
     {
         dbBuilder.EnableSensitiveDataLogging();
@@ -144,22 +146,22 @@ using (var scope = app.Services.CreateScope())
 }
 
 await app.Services.GetRequiredService<IUserService>().CreateAdminIfNotExist();
-// string localIP = LocalIPAddress();
-//
-// app.Urls.Add("http://" + localIP + ":5000");
-// app.Urls.Add("https://" + localIP + ":5001");
+string localIP = LocalIPAddress();
+
+app.Urls.Add("http://" + localIP + ":5000");
+app.Urls.Add("https://" + localIP + ":5001");
 
 app.Run();
 
-//
-// static string LocalIPAddress() {
-//     using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
-//         socket.Connect("8.8.8.8", 65530);
-//         IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
-//         if (endPoint != null) {
-//             return endPoint.Address.ToString();
-//         } else {
-//             return "127.0.0.1";
-//         }
-//     }
-// }
+
+static string LocalIPAddress() {
+    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
+        socket.Connect("8.8.8.8", 65530);
+        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
+        if (endPoint != null) {
+            return endPoint.Address.ToString();
+        } else {
+            return "127.0.0.1";
+        }
+    }
+}

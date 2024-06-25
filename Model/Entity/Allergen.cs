@@ -8,6 +8,8 @@ public class Allergen : AbstractEntity
 {
     [Required]
     public string Name { get; set; }
+    [Required]
+    public string ImgBase64 { get; set; }
 }
 
 public class AllergenTypeConfiguration : IEntityTypeConfiguration<Allergen>
