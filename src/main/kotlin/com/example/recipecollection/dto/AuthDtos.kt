@@ -4,23 +4,23 @@ import com.example.recipecollection.domain.UserRole
 import jakarta.validation.constraints.NotBlank
 
 data class AuthRegisterRequest(
-    @field:NotBlank
+    @NotBlank
     val username: String,
-    @field:NotBlank
+    @NotBlank
     val password: String,
-    @field:NotBlank
+    @NotBlank
     val name: String,
-    @field:NotBlank
+    @NotBlank
     val settlement: String,
-    @field:NotBlank
+    @NotBlank
     val country: String,
     val roles: Set<UserRole> = emptySet(),
 )
 
 data class AuthLoginRequest(
-    @field:NotBlank
+    @NotBlank
     val username: String,
-    @field:NotBlank
+    @NotBlank
     val password: String,
 )
 

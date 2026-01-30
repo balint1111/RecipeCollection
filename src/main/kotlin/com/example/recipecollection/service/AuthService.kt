@@ -30,7 +30,7 @@ class AuthService(
             name = request.name,
             settlement = request.settlement,
             country = request.country,
-            password = passwordEncoder.encode(request.password),
+            password = passwordEncoder.encode(request.password)!!,
             roles = roles.toMutableSet(),
         )
         val saved = userRepository.save(user)

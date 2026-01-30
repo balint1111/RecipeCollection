@@ -26,7 +26,7 @@ class ApplicationUserService(
         val user = userMapper.toEntity(request)
         val rawPassword = request.password?.trim()
         require(!rawPassword.isNullOrEmpty()) { "Password is required" }
-        user.password = passwordEncoder.encode(rawPassword)
+        user.password = passwordEncoder.encode(rawPassword)!!
         if (user.roles.isEmpty()) {
             user.roles = defaultRoles.toMutableSet()
         }
@@ -46,7 +46,7 @@ class ApplicationUserService(
         user.password = if (rawPassword.isNullOrEmpty()) {
             existingPassword
         } else {
-            passwordEncoder.encode(rawPassword)
+            passwordEncoder.encode(rawPassword)!!
         }
         return userMapper.toDto(userRepository.save(user))
     }
