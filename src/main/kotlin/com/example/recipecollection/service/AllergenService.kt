@@ -1,9 +1,13 @@
 package com.example.recipecollection.service
 
+import com.example.recipecollection.domain.UserAllergen
 import com.example.recipecollection.dto.AllergenDto
 import com.example.recipecollection.dto.AllergenRequest
+import com.example.recipecollection.dto.PageResponse
+import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.mapper.AllergenMapper
 import com.example.recipecollection.repository.AllergenRepository
+import com.example.recipecollection.repository.UserAllergenRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -11,10 +15,47 @@ import org.springframework.transaction.annotation.Transactional
 class AllergenService(
     private val allergenRepository: AllergenRepository,
     private val allergenMapper: AllergenMapper,
+    private val userAllergenRepository: UserAllergenRepository,
+    private val currentUserService: CurrentUserService,
 ) {
-    fun list(): List<AllergenDto> = allergenRepository.findAll().map(allergenMapper::toDto)
+    fun list(showDeleted: Boolean): List<AllergenDto> =
+        allergenRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .map(allergenMapper::toDto)
 
     fun get(id: Long): AllergenDto = allergenMapper.toDto(findEntity(id))
+
+    fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<AllergenDto> {
+        val filtered = allergenRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .filter { it.name.contains(pageable.filter, ignoreCase = true) }
+        val sorted = PageSupport.applySorting(filtered, pageable, mapOf("id" to { it.id }, "name" to { it.name }))
+        return PageSupport.toPage(sorted.map(allergenMapper::toDto), pageable)
+    }
+
+    @Transactional
+    fun addAllergen(allergenId: Long) {
+        val user = currentUserService.requireCurrentUser()
+        val allergen = findEntity(allergenId)
+        val existing = userAllergenRepository.findByUserIdAndAllergenId(user.id!!, allergen.id!!)
+        if (existing != null) {
+            if (existing.deleted) {
+                existing.deleted = false
+                userAllergenRepository.save(existing)
+            }
+            return
+        }
+        userAllergenRepository.save(UserAllergen(allergen = allergen, user = user))
+    }
+
+    @Transactional
+    fun deleteAllergen(allergenId: Long) {
+        val user = currentUserService.requireCurrentUser()
+        val existing = userAllergenRepository.findByUserIdAndAllergenId(user.id!!, allergenId)
+            ?: throw NoSuchElementException("Allergen $allergenId not found for user")
+        existing.deleted = true
+        userAllergenRepository.save(existing)
+    }
 
     @Transactional
     fun create(request: AllergenRequest): AllergenDto {
@@ -38,4 +79,5 @@ class AllergenService(
 
     private fun findEntity(id: Long) = allergenRepository.findById(id)
         .orElseThrow { NoSuchElementException("Allergen $id not found") }
+        .also { if (it.deleted) throw NoSuchElementException("Allergen $id not found") }
 }

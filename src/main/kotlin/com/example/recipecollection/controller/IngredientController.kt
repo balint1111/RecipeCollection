@@ -13,7 +13,8 @@ class IngredientController(
     private val ingredientService: IngredientService,
 ) {
     @GetMapping
-    fun list(): List<IngredientDto> = ingredientService.list()
+    fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<IngredientDto> =
+        ingredientService.list(showDeleted)
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): IngredientDto = ingredientService.get(id)

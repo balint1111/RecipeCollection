@@ -2,6 +2,9 @@ package com.example.recipecollection.controller
 
 import com.example.recipecollection.dto.MaterialCategoryDto
 import com.example.recipecollection.dto.MaterialCategoryRequest
+import com.example.recipecollection.dto.PageResponse
+import com.example.recipecollection.dto.PageableRequest
+import com.example.recipecollection.dto.SortDirection
 import com.example.recipecollection.service.MaterialCategoryService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -13,7 +16,21 @@ class MaterialCategoryController(
     private val materialCategoryService: MaterialCategoryService,
 ) {
     @GetMapping
-    fun list(): List<MaterialCategoryDto> = materialCategoryService.list()
+    fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<MaterialCategoryDto> =
+        materialCategoryService.list(showDeleted)
+
+    @GetMapping("/pageable")
+    fun listPageable(
+        @RequestParam(defaultValue = "false") showDeleted: Boolean,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") pageSize: Int,
+        @RequestParam(defaultValue = "") filter: String,
+        @RequestParam(required = false) sortField: String?,
+        @RequestParam(required = false) sortDirection: SortDirection?,
+    ): PageResponse<MaterialCategoryDto> = materialCategoryService.listPageable(
+        showDeleted,
+        PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
+    )
 
     @GetMapping("/{id}")
     fun get(@PathVariable id: Long): MaterialCategoryDto = materialCategoryService.get(id)

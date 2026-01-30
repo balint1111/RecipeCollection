@@ -14,6 +14,7 @@ data class RecipeDto(
     val createdByUserId: Long,
     val imgBase64: String?,
     val ingredientGroupIds: List<Long>,
+    val isFavorite: Boolean = false,
 )
 
 data class RecipeRequest(

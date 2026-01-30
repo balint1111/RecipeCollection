@@ -13,5 +13,11 @@ interface RecipeRepository : JpaRepository<Recipe, Long>
 interface ApplicationUserRepository : JpaRepository<ApplicationUser, Long> {
     fun findByUsername(username: String): ApplicationUser?
 }
-interface UserAllergenRepository : JpaRepository<UserAllergen, Long>
-interface UserFavoriteRepository : JpaRepository<UserFavorite, Long>
+interface UserAllergenRepository : JpaRepository<UserAllergen, Long> {
+    fun findByUserIdAndAllergenId(userId: Long, allergenId: Long): UserAllergen?
+    fun findAllByUserId(userId: Long): List<UserAllergen>
+}
+interface UserFavoriteRepository : JpaRepository<UserFavorite, Long> {
+    fun findByUserIdAndRecipeId(userId: Long, recipeId: Long): UserFavorite?
+    fun findAllByUserId(userId: Long): List<UserFavorite>
+}

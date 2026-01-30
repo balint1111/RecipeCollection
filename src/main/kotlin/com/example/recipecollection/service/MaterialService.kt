@@ -4,6 +4,8 @@ import com.example.recipecollection.domain.Material
 import com.example.recipecollection.domain.MaterialAllergen
 import com.example.recipecollection.dto.MaterialDto
 import com.example.recipecollection.dto.MaterialRequest
+import com.example.recipecollection.dto.PageResponse
+import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.mapper.MaterialMapper
 import com.example.recipecollection.repository.AllergenRepository
 import com.example.recipecollection.repository.MaterialCategoryRepository
@@ -18,9 +20,38 @@ class MaterialService(
     private val allergenRepository: AllergenRepository,
     private val materialMapper: MaterialMapper,
 ) {
-    fun list(): List<MaterialDto> = materialRepository.findAll().map(materialMapper::toDto)
+    fun list(showDeleted: Boolean): List<MaterialDto> =
+        materialRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .map(materialMapper::toDto)
 
     fun get(id: Long): MaterialDto = materialMapper.toDto(findEntity(id))
+
+    fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<MaterialDto> {
+        val filtered = materialRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .filter { it.name.contains(pageable.filter, ignoreCase = true) }
+        val sorted = PageSupport.applySorting(
+            filtered,
+            pageable,
+            mapOf("id" to { it.id }, "name" to { it.name }),
+        )
+        return PageSupport.toPage(sorted.map(materialMapper::toDto), pageable)
+    }
+
+    fun listByCategory(materialCategoryId: Long, showDeleted: Boolean): List<MaterialDto> =
+        materialRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .filter { it.materialCategory.id == materialCategoryId }
+            .map(materialMapper::toDto)
+
+    fun listByAllergens(allergenIds: List<Long>, showDeleted: Boolean): List<MaterialDto> {
+        if (allergenIds.isEmpty()) return emptyList()
+        return materialRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .filter { material -> material.materialAllergens.any { allergenIds.contains(it.allergen.id) } }
+            .map(materialMapper::toDto)
+    }
 
     @Transactional
     fun create(request: MaterialRequest): MaterialDto {
@@ -60,4 +91,5 @@ class MaterialService(
 
     private fun findEntity(id: Long) = materialRepository.findById(id)
         .orElseThrow { NoSuchElementException("Material $id not found") }
+        .also { if (it.deleted) throw NoSuchElementException("Material $id not found") }
 }
