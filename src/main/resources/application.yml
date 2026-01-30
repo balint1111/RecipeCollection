@@ -20,3 +20,8 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+jwt:
+  secret: "replace-with-a-secure-secret-key"
+  issuer: "recipecollection"
+  audience: "recipecollection"
+  expiration-ms: 3600000

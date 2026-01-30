@@ -3,24 +3,28 @@ package com.example.recipecollection.dto
 import com.example.recipecollection.domain.UserRole
 import jakarta.validation.constraints.NotBlank
 
-data class ApplicationUserDto(
-    val id: Long?,
+data class AuthRegisterRequest(
+    @NotBlank
     val username: String,
+    @NotBlank
+    val password: String,
+    @NotBlank
     val name: String,
+    @NotBlank
     val settlement: String,
+    @NotBlank
     val country: String,
-    val roles: Set<UserRole>,
+    val roles: Set<UserRole> = emptySet(),
 )
 
-data class ApplicationUserRequest(
+data class AuthLoginRequest(
     @NotBlank
     val username: String,
     @NotBlank
-    val name: String,
-    @NotBlank
-    val settlement: String,
-    @NotBlank
-    val country: String,
-    val password: String? = null,
-    val roles: Set<UserRole> = emptySet(),
+    val password: String,
+)
+
+data class AuthResponse(
+    val token: String,
+    val user: ApplicationUserDto,
 )
