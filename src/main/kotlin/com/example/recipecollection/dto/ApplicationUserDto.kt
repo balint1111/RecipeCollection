@@ -1,5 +1,6 @@
 package com.example.recipecollection.dto
 
+import com.example.recipecollection.domain.UserRole
 import jakarta.validation.constraints.NotBlank
 
 data class ApplicationUserDto(
@@ -8,6 +9,7 @@ data class ApplicationUserDto(
     val name: String,
     val settlement: String,
     val country: String,
+    val roles: Set<UserRole>,
 )
 
 data class ApplicationUserRequest(
@@ -19,4 +21,5 @@ data class ApplicationUserRequest(
     val settlement: String,
     @NotBlank
     val country: String,
+    val roles: Set<UserRole> = emptySet(),
 )
