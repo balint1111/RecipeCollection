@@ -10,11 +10,9 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.Where
 
 @Entity
 @Table(name = "materials")
-@Where(clause = "deleted = false")
 class Material(
     @field:NotBlank
     @Column(nullable = false)

@@ -6,11 +6,9 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.Where
 
 @Entity
 @Table(name = "material_allergens")
-@Where(clause = "deleted = false")
 class MaterialAllergen(
     @field:NotNull
     @ManyToOne(fetch = FetchType.LAZY)

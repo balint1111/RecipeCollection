@@ -9,11 +9,9 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
-import org.hibernate.annotations.Where
 
 @Entity
 @Table(name = "ingredient_groups")
-@Where(clause = "deleted = false")
 class IngredientGroup(
     @field:NotBlank
     @Column(nullable = false)

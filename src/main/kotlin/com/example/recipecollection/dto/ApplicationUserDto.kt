@@ -11,12 +11,12 @@ data class ApplicationUserDto(
 )
 
 data class ApplicationUserRequest(
-    @field:NotBlank
+    @NotBlank
     val username: String,
-    @field:NotBlank
+    @NotBlank
     val name: String,
-    @field:NotBlank
+    @NotBlank
     val settlement: String,
-    @field:NotBlank
+    @NotBlank
     val country: String,
 )

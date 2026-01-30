@@ -8,12 +8,10 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.Where
 import java.math.BigDecimal
 
 @Entity
 @Table(name = "ingredients")
-@Where(clause = "deleted = false")
 class Ingredient(
     @field:NotNull
     @ManyToOne(fetch = FetchType.LAZY)
