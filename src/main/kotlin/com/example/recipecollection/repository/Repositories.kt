@@ -10,6 +10,8 @@ interface MaterialAllergenRepository : JpaRepository<MaterialAllergen, Long>
 interface IngredientRepository : JpaRepository<Ingredient, Long>
 interface IngredientGroupRepository : JpaRepository<IngredientGroup, Long>
 interface RecipeRepository : JpaRepository<Recipe, Long>
-interface ApplicationUserRepository : JpaRepository<ApplicationUser, Long>
+interface ApplicationUserRepository : JpaRepository<ApplicationUser, Long> {
+    fun findByUsername(username: String): ApplicationUser?
+}
 interface UserAllergenRepository : JpaRepository<UserAllergen, Long>
 interface UserFavoriteRepository : JpaRepository<UserFavorite, Long>

@@ -21,5 +21,6 @@ data class ApplicationUserRequest(
     val settlement: String,
     @NotBlank
     val country: String,
+    val password: String? = null,
     val roles: Set<UserRole> = emptySet(),
 )
