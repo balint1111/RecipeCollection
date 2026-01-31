@@ -6,10 +6,14 @@ import com.example.recipecollection.dto.MaterialDto
 import com.example.recipecollection.dto.MaterialRequest
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
+import com.example.recipecollection.mapper.AllergenMapper
+import com.example.recipecollection.mapper.MaterialCategoryMapper
 import com.example.recipecollection.mapper.MaterialMapper
 import com.example.recipecollection.repository.AllergenRepository
 import com.example.recipecollection.repository.MaterialCategoryRepository
 import com.example.recipecollection.repository.MaterialRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,24 +23,45 @@ class MaterialService(
     private val materialCategoryRepository: MaterialCategoryRepository,
     private val allergenRepository: AllergenRepository,
     private val materialMapper: MaterialMapper,
+    private val materialCategoryMapper: MaterialCategoryMapper,
+    private val allergenMapper: AllergenMapper,
 ) {
+    @Transactional
     fun list(showDeleted: Boolean): List<MaterialDto> =
-        materialRepository.findAll()
-            .filter { showDeleted || !it.deleted }
-            .map(materialMapper::toDto)
+        materialRepository.findAllByDeleted(showDeleted)
+            .map { material ->
+                MaterialDto(
+                    id = material.id,
+                    name = material.name,
+                    materialCategory = materialCategoryMapper.toDto(material.materialCategory),
+                    allergens = material.materialAllergens.map { allergenMapper.toDto(it.allergen) }
+                )
+            }
 
     fun get(id: Long): MaterialDto = materialMapper.toDto(findEntity(id))
 
+    @Transactional
     fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<MaterialDto> {
-        val filtered = materialRepository.findAll()
-            .filter { showDeleted || !it.deleted }
-            .filter { it.name.contains(pageable.filter, ignoreCase = true) }
-        val sorted = PageSupport.applySorting(
-            filtered,
-            pageable,
-            mapOf("id" to { it.id }, "name" to { it.name }),
-        )
-        return PageSupport.toPage(sorted.map(materialMapper::toDto), pageable)
+
+        val page = materialRepository.findAllByNameContainsIgnoreCaseAndDeleted(
+            pageable.filter,
+            showDeleted,
+            PageRequest.of(
+                0,
+                20,
+                if (pageable.sortDirection != null && pageable.sortField != null) {
+                    Sort.by(pageable.sortDirection, pageable.sortField)
+                } else Sort.unsorted()
+            )
+        ).map { material ->
+            MaterialDto(
+                id = material.id,
+                name = material.name,
+                materialCategory = materialCategoryMapper.toDto(material.materialCategory),
+                allergens = material.materialAllergens.map { allergenMapper.toDto(it.allergen) }
+            )
+        }
+        return PageSupport.toPage(page)
     }
 
     fun listByCategory(materialCategoryId: Long, showDeleted: Boolean): List<MaterialDto> =

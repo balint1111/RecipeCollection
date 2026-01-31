@@ -1,7 +1,6 @@
 package com.example.recipecollection.middleware
 
 import com.example.recipecollection.dto.MiddlewareReturnDto
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -9,6 +8,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 @Component
@@ -34,6 +34,7 @@ class RequestResponseMiddleware(
             )
             writeResponse(wrappedResponse, middlewareBody)
         } catch (ex: Exception) {
+            ex.printStackTrace()
             val middlewareBody = MiddlewareReturnDto(
                 statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR.toString(),
                 content = ex.message ?: "Unexpected error",

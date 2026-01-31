@@ -12,23 +12,23 @@ import org.springframework.web.bind.annotation.*
 class IngredientGroupController(
     private val ingredientGroupService: IngredientGroupService,
 ) {
-    @GetMapping
+    @GetMapping("/GetAll")
     fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<IngredientGroupDto> =
         ingredientGroupService.list(showDeleted)
 
-    @GetMapping("/{id}")
+    @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): IngredientGroupDto = ingredientGroupService.get(id)
 
-    @PostMapping
+    @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: IngredientGroupRequest): IngredientGroupDto =
         ingredientGroupService.create(request)
 
-    @PutMapping("/{id}")
+    @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: IngredientGroupRequest): IngredientGroupDto =
         ingredientGroupService.update(id, request)
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long) {
         ingredientGroupService.delete(id)

@@ -25,9 +25,7 @@ data class RecipeRequest(
     @field:NotBlank
     val description: String,
     val preparationDuration: Long = 0,
-    @field:NotNull
     val cookingDuration: Long,
-    @field:NotNull
     val createdByUserId: Long,
     val imgBase64: String? = null,
     val ingredientGroupIds: List<Long> = emptyList(),

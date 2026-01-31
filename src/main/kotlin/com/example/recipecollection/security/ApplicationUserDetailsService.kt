@@ -16,6 +16,7 @@ class ApplicationUserDetailsService(
         val user = userRepository.findByUsername(username)
             ?: throw UsernameNotFoundException("User $username not found")
         val authorities = user.roles.map { role -> SimpleGrantedAuthority("ROLE_${role.name}") }
+        println("user: $user")
         return User(user.username, user.password, authorities)
     }
 }

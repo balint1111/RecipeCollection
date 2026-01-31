@@ -7,19 +7,20 @@ import com.example.recipecollection.dto.RecipeRequest
 import com.example.recipecollection.dto.SortDirection
 import com.example.recipecollection.service.RecipeService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/recipes")
+@RequestMapping("/api/Recipe")
 class RecipeController(
     private val recipeService: RecipeService,
 ) {
-    @GetMapping
+    @GetMapping("/GetAll")
     fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<RecipeDto> =
         recipeService.list(showDeleted)
 
-    @GetMapping("/pageable")
+    @GetMapping("/GetAllPageable")
     fun listPageable(
         @RequestParam(defaultValue = "false") showDeleted: Boolean,
         @RequestParam(defaultValue = "false") justFavorites: Boolean,
@@ -28,7 +29,7 @@ class RecipeController(
         @RequestParam(defaultValue = "10") pageSize: Int,
         @RequestParam(defaultValue = "") filter: String,
         @RequestParam(required = false) sortField: String?,
-        @RequestParam(required = false) sortDirection: SortDirection?,
+        @RequestParam(required = false) sortDirection: Sort.Direction?,
     ): PageResponse<RecipeDto> = recipeService.listPageable(
         showDeleted,
         justFavorites,
@@ -36,7 +37,7 @@ class RecipeController(
         PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
     )
 
-    @GetMapping("/{id}")
+    @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): RecipeDto = recipeService.get(id)
 
     @GetMapping("/material/{materialId}")
@@ -45,27 +46,27 @@ class RecipeController(
         @RequestParam(defaultValue = "false") showDeleted: Boolean,
     ): List<RecipeDto> = recipeService.listByMaterialId(materialId, showDeleted)
 
-    @PostMapping("/{id}/favorite")
+    @PostMapping("/AddFavorite")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun addFavorite(@PathVariable id: Long) {
-        recipeService.addFavorite(id)
+    fun addFavorite(@RequestParam recipeId: Long) {
+        recipeService.addFavorite(recipeId)
     }
 
-    @DeleteMapping("/{id}/favorite")
+    @DeleteMapping("/DeleteFavorite")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteFavorite(@PathVariable id: Long) {
-        recipeService.deleteFavorite(id)
+    fun deleteFavorite(@RequestParam recipeId: Long) {
+        recipeService.deleteFavorite(recipeId)
     }
 
-    @PostMapping
+    @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: RecipeRequest): RecipeDto = recipeService.create(request)
 
-    @PutMapping("/{id}")
+    @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: RecipeRequest): RecipeDto =
         recipeService.update(id, request)
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long) {
         recipeService.delete(id)
