@@ -7,8 +7,8 @@ import jakarta.validation.constraints.NotNull
 data class MaterialDto(
     val id: Long?,
     val name: String,
-    val materialCategoryId: Long,
-    val allergenIds: List<Long>,
+    val materialCategory: MaterialCategoryDto,
+    val allergens: List<AllergenDto>,
 )
 
 data class MaterialRequest(

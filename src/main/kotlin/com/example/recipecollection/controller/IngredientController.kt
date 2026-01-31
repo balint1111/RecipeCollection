@@ -12,22 +12,22 @@ import org.springframework.web.bind.annotation.*
 class IngredientController(
     private val ingredientService: IngredientService,
 ) {
-    @GetMapping
+    @GetMapping("/GetAll")
     fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<IngredientDto> =
         ingredientService.list(showDeleted)
 
-    @GetMapping("/{id}")
+    @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): IngredientDto = ingredientService.get(id)
 
-    @PostMapping
+    @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: IngredientRequest): IngredientDto = ingredientService.create(request)
 
-    @PutMapping("/{id}")
+    @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: IngredientRequest): IngredientDto =
         ingredientService.update(id, request)
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long) {
         ingredientService.delete(id)

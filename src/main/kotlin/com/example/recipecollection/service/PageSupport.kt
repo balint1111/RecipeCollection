@@ -3,6 +3,8 @@ package com.example.recipecollection.service
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.dto.SortDirection
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import kotlin.math.ceil
 
 object PageSupport {
@@ -19,7 +21,18 @@ object PageSupport {
             totalPages = totalPages,
             page = page,
             pageSize = pageSize,
-            items = pageItems,
+            content = pageItems,
+        )
+    }
+
+    fun <T: Any> toPage(page: Page<T>): PageResponse<T> {
+        page.totalPages
+        return PageResponse(
+            totalCount = page.totalElements,
+            totalPages = page.totalPages,
+            page = page.number,
+            pageSize = page.size,
+            content = page.content,
         )
     }
 
@@ -31,7 +44,7 @@ object PageSupport {
         if (items.isEmpty()) return items
         val sortField = pageable.sortField?.lowercase() ?: "id"
         val selector = selectors[sortField] ?: selectors["id"] ?: return items
-        return if (pageable.sortDirection == SortDirection.DESC) {
+        return if (pageable.sortDirection == Sort.Direction.DESC) {
             items.sortedByDescending { selector(it) as Comparable<Any>? }
         } else {
             items.sortedBy { selector(it) as Comparable<Any>? }

@@ -1,11 +1,16 @@
 package com.example.recipecollection.repository
 
 import com.example.recipecollection.domain.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface AllergenRepository : JpaRepository<Allergen, Long>
 interface MaterialCategoryRepository : JpaRepository<MaterialCategory, Long>
-interface MaterialRepository : JpaRepository<Material, Long>
+interface MaterialRepository : JpaRepository<Material, Long> {
+    fun findAllByNameContainsIgnoreCaseAndDeleted(name: String?, deleted: Boolean, pageable: Pageable): Page<Material>
+    fun findAllByDeleted(deleted: Boolean): List<Material>
+}
 interface MaterialAllergenRepository : JpaRepository<MaterialAllergen, Long>
 interface IngredientRepository : JpaRepository<Ingredient, Long>
 interface IngredientGroupRepository : JpaRepository<IngredientGroup, Long>

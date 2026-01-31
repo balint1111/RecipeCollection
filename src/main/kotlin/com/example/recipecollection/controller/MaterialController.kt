@@ -7,32 +7,33 @@ import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.dto.SortDirection
 import com.example.recipecollection.service.MaterialService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/materials")
+@RequestMapping("/api/Material")
 class MaterialController(
     private val materialService: MaterialService,
 ) {
-    @GetMapping
+    @GetMapping("/GetAll")
     fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<MaterialDto> =
         materialService.list(showDeleted)
 
-    @GetMapping("/pageable")
+    @GetMapping("/GetAllPageable")
     fun listPageable(
         @RequestParam(defaultValue = "false") showDeleted: Boolean,
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") pageSize: Int,
         @RequestParam(defaultValue = "") filter: String,
         @RequestParam(required = false) sortField: String?,
-        @RequestParam(required = false) sortDirection: SortDirection?,
+        @RequestParam(required = false) sortDirection: Sort.Direction?,
     ): PageResponse<MaterialDto> = materialService.listPageable(
         showDeleted,
         PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
     )
 
-    @GetMapping("/{id}")
+    @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): MaterialDto = materialService.get(id)
 
     @GetMapping("/category/{categoryId}")
@@ -47,15 +48,15 @@ class MaterialController(
         @RequestParam(defaultValue = "false") showDeleted: Boolean,
     ): List<MaterialDto> = materialService.listByAllergens(allergenIds, showDeleted)
 
-    @PostMapping
+    @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: MaterialRequest): MaterialDto = materialService.create(request)
 
-    @PutMapping("/{id}")
+    @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: MaterialRequest): MaterialDto =
         materialService.update(id, request)
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable id: Long) {
         materialService.delete(id)
