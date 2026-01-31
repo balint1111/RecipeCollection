@@ -9,6 +9,11 @@ import org.mapstruct.MappingTarget
 @Mapper(componentModel = "spring")
 interface MaterialCategoryMapper {
     fun toDto(entity: MaterialCategory): MaterialCategoryDto
+
     fun toEntity(request: MaterialCategoryRequest): MaterialCategory
-    fun updateEntity(request: MaterialCategoryRequest, @MappingTarget entity: MaterialCategory)
+
+    fun updateEntity(
+        request: MaterialCategoryRequest,
+        @MappingTarget entity: MaterialCategory,
+    )
 }

@@ -9,8 +9,6 @@ data class UserAllergenDto(
 )
 
 data class UserAllergenRequest(
-    @field:NotNull
-    val allergenId: Long,
-    @field:NotNull
-    val userId: Long,
+    @field:NotNull val allergenId: Long,
+    @field:NotNull val userId: Long,
 )

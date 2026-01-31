@@ -15,5 +15,8 @@ interface UserFavoriteMapper {
 
     fun toEntity(request: UserFavoriteRequest): UserFavorite
 
-    fun updateEntity(request: UserFavoriteRequest, @MappingTarget entity: UserFavorite)
+    fun updateEntity(
+        request: UserFavoriteRequest,
+        @MappingTarget entity: UserFavorite,
+    )
 }

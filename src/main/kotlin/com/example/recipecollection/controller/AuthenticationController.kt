@@ -9,16 +9,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/authentication")
+@RequestMapping("/api/Authentication")
 class AuthenticationController(
     private val authService: AuthService,
 ) {
-    @PostMapping("/registerUser")
+    @PostMapping("/RegisterUser")
     @ResponseStatus(HttpStatus.CREATED)
     fun register(@Valid @RequestBody request: AuthRegisterRequest): AuthResponse =
         authService.register(request)
 
-    @PostMapping("/login")
+    @PostMapping("/Login")
     fun login(@Valid @RequestBody request: AuthLoginRequest): AuthResponse =
         authService.login(request)
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
 import tools.jackson.databind.ObjectMapper
-import java.util.UUID
+import java.util.*
 
 @Component
 class RequestResponseMiddleware(
@@ -27,19 +27,21 @@ class RequestResponseMiddleware(
             filterChain.doFilter(request, wrappedResponse)
             val originalBody = wrappedResponse.contentAsByteArray
             val content: Any? = extractContent(originalBody)
-            val middlewareBody = MiddlewareReturnDto(
-                statusCode = wrappedResponse.status.toString(),
-                content = content,
-                identity = identity,
-            )
+            val middlewareBody =
+                MiddlewareReturnDto(
+                    statusCode = wrappedResponse.status.toString(),
+                    content = content,
+                    identity = identity,
+                )
             writeResponse(wrappedResponse, middlewareBody)
         } catch (ex: Exception) {
             ex.printStackTrace()
-            val middlewareBody = MiddlewareReturnDto(
-                statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR.toString(),
-                content = ex.message ?: "Unexpected error",
-                identity = identity,
-            )
+            val middlewareBody =
+                MiddlewareReturnDto(
+                    statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR.toString(),
+                    content = ex.message ?: "Unexpected error",
+                    identity = identity,
+                )
             response.resetBuffer()
             response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
             response.contentType = MediaType.APPLICATION_JSON_VALUE

@@ -10,8 +10,9 @@ class CurrentUserService(
     private val userRepository: ApplicationUserRepository,
 ) {
     fun requireCurrentUser(): ApplicationUser {
-        val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw IllegalStateException("No authenticated user")
+        val authentication =
+            SecurityContextHolder.getContext().authentication
+                ?: throw IllegalStateException("No authenticated user")
         val username = authentication.name
         return userRepository.findByUsername(username)
             ?: throw NoSuchElementException("User $username not found")

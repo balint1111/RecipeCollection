@@ -4,7 +4,6 @@ import com.example.recipecollection.dto.AllergenDto
 import com.example.recipecollection.dto.AllergenRequest
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
-import com.example.recipecollection.dto.SortDirection
 import com.example.recipecollection.service.AllergenService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Sort
@@ -17,8 +16,9 @@ class AllergenController(
     private val allergenService: AllergenService,
 ) {
     @GetMapping("/GetAll")
-    fun list(@RequestParam(defaultValue = "false") showDeleted: Boolean): List<AllergenDto> =
-        allergenService.list(showDeleted)
+    fun list(
+        @RequestParam(defaultValue = "false") showDeleted: Boolean,
+    ): List<AllergenDto> = allergenService.list(showDeleted)
 
     @GetMapping("/GetAllPageable")
     fun listPageable(
@@ -28,37 +28,56 @@ class AllergenController(
         @RequestParam(defaultValue = "") filter: String,
         @RequestParam(required = false) sortField: String?,
         @RequestParam(required = false) sortDirection: Sort.Direction?,
-    ): PageResponse<AllergenDto> = allergenService.listPageable(
-        showDeleted,
-        PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
-    )
+    ): PageResponse<AllergenDto> =
+        allergenService.listPageable(
+            showDeleted,
+            PageableRequest(
+                page = page,
+                pageSize = pageSize,
+                filter = filter,
+                sortField = sortField,
+                sortDirection = sortDirection,
+            ),
+        )
 
     @GetMapping("/GetById/{id}")
-    fun get(@PathVariable id: Long): AllergenDto = allergenService.get(id)
+    fun get(
+        @PathVariable id: Long,
+    ): AllergenDto = allergenService.get(id)
 
     @PostMapping("/{id}/user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun addAllergen(@PathVariable id: Long) {
+    fun addAllergen(
+        @PathVariable id: Long,
+    ) {
         allergenService.addAllergen(id)
     }
 
     @DeleteMapping("/{id}/user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteAllergen(@PathVariable id: Long) {
+    fun deleteAllergen(
+        @PathVariable id: Long,
+    ) {
         allergenService.deleteAllergen(id)
     }
 
     @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody request: AllergenRequest): AllergenDto = allergenService.create(request)
+    fun create(
+        @Valid @RequestBody request: AllergenRequest,
+    ): AllergenDto = allergenService.create(request)
 
     @PutMapping("/Update/{id}")
-    fun update(@PathVariable id: Long, @Valid @RequestBody request: AllergenRequest): AllergenDto =
-        allergenService.update(id, request)
+    fun update(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: AllergenRequest,
+    ): AllergenDto = allergenService.update(id, request)
 
     @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable id: Long) {
+    fun delete(
+        @PathVariable id: Long,
+    ) {
         allergenService.delete(id)
     }
 }

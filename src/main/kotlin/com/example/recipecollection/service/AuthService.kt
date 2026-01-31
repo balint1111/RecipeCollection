@@ -25,22 +25,24 @@ class AuthService(
     fun register(request: AuthRegisterRequest): AuthResponse {
         require(userRepository.findByUsername(request.username) == null) { "Username already exists" }
         val roles = if (request.roles.isEmpty()) defaultRoles else request.roles
-        val user = ApplicationUser(
-            username = request.username,
-            name = request.name,
-            settlement = request.settlement,
-            country = request.country,
-            password = passwordEncoder.encode(request.password)!!,
-            roles = roles.toMutableSet(),
-        )
+        val user =
+            ApplicationUser(
+                username = request.username,
+                name = request.name,
+                settlement = request.settlement,
+                country = request.country,
+                password = passwordEncoder.encode(request.password)!!,
+                roles = roles.toMutableSet(),
+            )
         val saved = userRepository.save(user)
         val token = jwtService.generateToken(saved.username, saved.roles)
         return AuthResponse(token = token, user = userMapper.toDto(saved))
     }
 
     fun login(request: AuthLoginRequest): AuthResponse {
-        val user = userRepository.findByUsername(request.username)
-            ?: throw IllegalArgumentException("Invalid username or password")
+        val user =
+            userRepository.findByUsername(request.username)
+                ?: throw IllegalArgumentException("Invalid username or password")
         if (!passwordEncoder.matches(request.password, user.password)) {
             throw IllegalArgumentException("Invalid username or password")
         }

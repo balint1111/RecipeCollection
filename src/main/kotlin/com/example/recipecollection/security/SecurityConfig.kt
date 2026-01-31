@@ -1,5 +1,6 @@
 package com.example.recipecollection.security
 
+import com.example.recipecollection.middleware.RequestResponseMiddleware
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -16,8 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import com.example.recipecollection.middleware.RequestResponseMiddleware
-
 
 @Configuration
 class SecurityConfig(
@@ -30,13 +29,10 @@ class SecurityConfig(
 
     @Bean
     fun authenticationProvider(): DaoAuthenticationProvider =
-        DaoAuthenticationProvider(userDetailsService).apply {
-            setPasswordEncoder(passwordEncoder())
-        }
+        DaoAuthenticationProvider(userDetailsService).apply { setPasswordEncoder(passwordEncoder()) }
 
     @Bean
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
-        config.authenticationManager
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager = config.authenticationManager
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -46,10 +42,11 @@ class SecurityConfig(
             .headers { headers -> headers.frameOptions { it.sameOrigin() } }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/authentication/**", "/h2-console/**").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+                    .requestMatchers("/api/Authentication/**", "/h2-console/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterAfter(requestResponseMiddleware, JwtAuthenticationFilter::class.java)
@@ -60,11 +57,11 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration()
         config.allowedOrigins = listOf("http://localhost:4200")
-        config.setAllowedMethods(listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS"))
+        config.setAllowedMethods(listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"))
         config.allowedHeaders = listOf("*")
 
         val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config);
-        return source;
+        source.registerCorsConfiguration("/**", config)
+        return source
     }
 }

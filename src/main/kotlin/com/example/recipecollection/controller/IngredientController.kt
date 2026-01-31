@@ -21,11 +21,14 @@ class IngredientController(
 
     @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody request: IngredientRequest): IngredientDto = ingredientService.create(request)
+    fun create(@Valid @RequestBody request: IngredientRequest): IngredientDto =
+        ingredientService.create(request)
 
     @PutMapping("/Update/{id}")
-    fun update(@PathVariable id: Long, @Valid @RequestBody request: IngredientRequest): IngredientDto =
-        ingredientService.update(id, request)
+    fun update(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: IngredientRequest,
+    ): IngredientDto = ingredientService.update(id, request)
 
     @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

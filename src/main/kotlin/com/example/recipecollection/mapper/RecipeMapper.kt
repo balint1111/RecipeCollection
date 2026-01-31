@@ -10,15 +10,13 @@ import org.mapstruct.MappingTarget
 @Mapper(componentModel = "spring")
 interface RecipeMapper {
     @Mapping(target = "createdByUserId", source = "createdBy.id")
-    @Mapping(target = "ingredientGroupIds", expression = "java(mapIngredientGroupIds(recipe))")
     @Mapping(target = "isFavorite", constant = "false")
     fun toDto(recipe: Recipe): RecipeDto
 
     fun toEntity(request: RecipeRequest): Recipe
 
-    fun updateEntity(request: RecipeRequest, @MappingTarget recipe: Recipe)
-
-    fun mapIngredientGroupIds(recipe: Recipe): List<Long> {
-        return recipe.ingredientGroups.mapNotNull { it.id }
-    }
+    fun updateEntity(
+        request: RecipeRequest,
+        @MappingTarget recipe: Recipe,
+    )
 }

@@ -25,8 +25,10 @@ class IngredientGroupController(
         ingredientGroupService.create(request)
 
     @PutMapping("/Update/{id}")
-    fun update(@PathVariable id: Long, @Valid @RequestBody request: IngredientGroupRequest): IngredientGroupDto =
-        ingredientGroupService.update(id, request)
+    fun update(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: IngredientGroupRequest,
+    ): IngredientGroupDto = ingredientGroupService.update(id, request)
 
     @DeleteMapping("/Delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

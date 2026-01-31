@@ -1,7 +1,6 @@
 package com.example.recipecollection.dto
 
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 
 data class RecipeDto(
     val id: Long?,
@@ -13,17 +12,14 @@ data class RecipeDto(
     val totalDuration: Long,
     val createdByUserId: Long,
     val imgBase64: String?,
-    val ingredientGroupIds: List<Long>,
+    val ingredientGroups: List<IngredientGroupDto>,
     val isFavorite: Boolean = false,
 )
 
 data class RecipeRequest(
-    @field:NotBlank
-    val code: String,
-    @field:NotBlank
-    val name: String,
-    @field:NotBlank
-    val description: String,
+    @field:NotBlank val code: String,
+    @field:NotBlank val name: String,
+    @field:NotBlank val description: String,
     val preparationDuration: Long = 0,
     val cookingDuration: Long,
     val createdByUserId: Long,

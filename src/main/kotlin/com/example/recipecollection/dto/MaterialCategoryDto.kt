@@ -8,6 +8,5 @@ data class MaterialCategoryDto(
 )
 
 data class MaterialCategoryRequest(
-    @field:NotBlank
-    val name: String,
+    @field:NotBlank val name: String,
 )

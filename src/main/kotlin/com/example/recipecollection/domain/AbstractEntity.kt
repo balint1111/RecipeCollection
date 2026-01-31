@@ -5,6 +5,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.MappedSuperclass
 import jakarta.validation.constraints.NotNull
+import org.hibernate.annotations.ColumnDefault
 
 @MappedSuperclass
 abstract class AbstractEntity {
@@ -13,5 +14,6 @@ abstract class AbstractEntity {
     var id: Long? = null
 
     @NotNull
+    @ColumnDefault(value = "false")
     var deleted: Boolean = false
 }

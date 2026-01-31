@@ -9,8 +9,6 @@ data class UserFavoriteDto(
 )
 
 data class UserFavoriteRequest(
-    @field:NotNull
-    val recipeId: Long,
-    @field:NotNull
-    val userId: Long,
+    @field:NotNull val recipeId: Long,
+    @field:NotNull val userId: Long,
 )

@@ -2,20 +2,23 @@ package com.example.recipecollection.service
 
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
-import com.example.recipecollection.dto.SortDirection
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import kotlin.math.ceil
 
 object PageSupport {
-    fun <T> toPage(items: List<T>, pageable: PageableRequest): PageResponse<T> {
+    fun <T> toPage(
+        items: List<T>,
+        pageable: PageableRequest,
+    ): PageResponse<T> {
         val pageSize = pageable.pageSize.coerceAtLeast(1)
         val page = pageable.page.coerceAtLeast(1)
         val totalCount = items.size.toLong()
         val totalPages = if (totalCount == 0L) 0 else ceil(totalCount.toDouble() / pageSize).toInt()
         val startIndex = ((page - 1) * pageSize).coerceAtMost(items.size)
         val endIndex = (startIndex + pageSize).coerceAtMost(items.size)
-        val pageItems = if (startIndex >= items.size) emptyList() else items.subList(startIndex, endIndex)
+        val pageItems =
+            if (startIndex >= items.size) emptyList() else items.subList(startIndex, endIndex)
         return PageResponse(
             totalCount = totalCount,
             totalPages = totalPages,
@@ -25,7 +28,7 @@ object PageSupport {
         )
     }
 
-    fun <T: Any> toPage(page: Page<T>): PageResponse<T> {
+    fun <T : Any> toPage(page: Page<T>): PageResponse<T> {
         page.totalPages
         return PageResponse(
             totalCount = page.totalElements,

@@ -18,7 +18,8 @@ class IngredientGroupService(
     private val ingredientGroupMapper: IngredientGroupMapper,
 ) {
     fun list(showDeleted: Boolean): List<IngredientGroupDto> =
-        ingredientGroupRepository.findAll()
+        ingredientGroupRepository
+            .findAll()
             .filter { showDeleted || !it.deleted }
             .map(ingredientGroupMapper::toDto)
 
@@ -33,7 +34,10 @@ class IngredientGroupService(
     }
 
     @Transactional
-    fun update(id: Long, request: IngredientGroupRequest): IngredientGroupDto {
+    fun update(
+        id: Long,
+        request: IngredientGroupRequest,
+    ): IngredientGroupDto {
         val group = findEntity(id)
         group.name = request.name
         applyRecipe(group, request.recipeId)
@@ -49,14 +53,22 @@ class IngredientGroupService(
         ingredientGroupRepository.save(group)
     }
 
-    private fun applyRecipe(group: IngredientGroup, recipeId: Long?) {
-        group.recipe = recipeId?.let { id ->
-            recipeRepository.findById(id)
-                .orElseThrow { NoSuchElementException("Recipe $id not found") }
-        }
+    private fun applyRecipe(
+        group: IngredientGroup,
+        recipeId: Long?,
+    ) {
+        group.recipe =
+            recipeId?.let { id ->
+                recipeRepository.findById(id).orElseThrow {
+                    NoSuchElementException("Recipe $id not found")
+                }
+            }
     }
 
-    private fun applyIngredients(group: IngredientGroup, ingredientIds: List<Long>) {
+    private fun applyIngredients(
+        group: IngredientGroup,
+        ingredientIds: List<Long>,
+    ) {
         if (ingredientIds.isEmpty()) return
         val ingredients = ingredientRepository.findAllById(ingredientIds)
         ingredients.forEach { ingredient ->
@@ -65,7 +77,9 @@ class IngredientGroupService(
         }
     }
 
-    private fun findEntity(id: Long) = ingredientGroupRepository.findById(id)
-        .orElseThrow { NoSuchElementException("Ingredient group $id not found") }
-        .also { if (it.deleted) throw NoSuchElementException("Ingredient group $id not found") }
+    private fun findEntity(id: Long) =
+        ingredientGroupRepository
+            .findById(id)
+            .orElseThrow { NoSuchElementException("Ingredient group $id not found") }
+            .also { if (it.deleted) throw NoSuchElementException("Ingredient group $id not found") }
 }

@@ -9,8 +9,6 @@ data class AllergenDto(
 )
 
 data class AllergenRequest(
-    @field:NotBlank
-    val name: String,
-    @field:NotBlank
-    val imgBase64: String,
+    @field:NotBlank val name: String,
+    @field:NotBlank val imgBase64: String,
 )

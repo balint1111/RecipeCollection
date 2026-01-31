@@ -14,18 +14,32 @@ class MaterialCategoryService(
     private val materialCategoryRepository: MaterialCategoryRepository,
     private val materialCategoryMapper: MaterialCategoryMapper,
 ) {
+    @Transactional
     fun list(showDeleted: Boolean): List<MaterialCategoryDto> =
-        materialCategoryRepository.findAll()
+        materialCategoryRepository
+            .findAll()
             .filter { showDeleted || !it.deleted }
             .map(materialCategoryMapper::toDto)
 
+    @Transactional
     fun get(id: Long): MaterialCategoryDto = materialCategoryMapper.toDto(findEntity(id))
 
-    fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<MaterialCategoryDto> {
-        val filtered = materialCategoryRepository.findAll()
-            .filter { showDeleted || !it.deleted }
-            .filter { it.name.contains(pageable.filter, ignoreCase = true) }
-        val sorted = PageSupport.applySorting(filtered, pageable, mapOf("id" to { it.id }, "name" to { it.name }))
+    @Transactional
+    fun listPageable(
+        showDeleted: Boolean,
+        pageable: PageableRequest,
+    ): PageResponse<MaterialCategoryDto> {
+        val filtered =
+            materialCategoryRepository
+                .findAll()
+                .filter { showDeleted || !it.deleted }
+                .filter { it.name.contains(pageable.filter, ignoreCase = true) }
+        val sorted =
+            PageSupport.applySorting(
+                filtered,
+                pageable,
+                mapOf("id" to { it.id }, "name" to { it.name }),
+            )
         return PageSupport.toPage(sorted.map(materialCategoryMapper::toDto), pageable)
     }
 
@@ -36,7 +50,10 @@ class MaterialCategoryService(
     }
 
     @Transactional
-    fun update(id: Long, request: MaterialCategoryRequest): MaterialCategoryDto {
+    fun update(
+        id: Long,
+        request: MaterialCategoryRequest,
+    ): MaterialCategoryDto {
         val entity = findEntity(id)
         materialCategoryMapper.updateEntity(request, entity)
         return materialCategoryMapper.toDto(materialCategoryRepository.save(entity))
@@ -49,7 +66,9 @@ class MaterialCategoryService(
         materialCategoryRepository.save(entity)
     }
 
-    private fun findEntity(id: Long) = materialCategoryRepository.findById(id)
-        .orElseThrow { NoSuchElementException("Material category $id not found") }
-        .also { if (it.deleted) throw NoSuchElementException("Material category $id not found") }
+    private fun findEntity(id: Long) =
+        materialCategoryRepository
+            .findById(id)
+            .orElseThrow { NoSuchElementException("Material category $id not found") }
+            .also { if (it.deleted) throw NoSuchElementException("Material category $id not found") }
 }

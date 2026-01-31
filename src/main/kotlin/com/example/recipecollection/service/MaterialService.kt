@@ -1,7 +1,6 @@
 package com.example.recipecollection.service
 
 import com.example.recipecollection.domain.Material
-import com.example.recipecollection.domain.MaterialAllergen
 import com.example.recipecollection.dto.MaterialDto
 import com.example.recipecollection.dto.MaterialRequest
 import com.example.recipecollection.dto.PageResponse
@@ -28,73 +27,94 @@ class MaterialService(
 ) {
     @Transactional
     fun list(showDeleted: Boolean): List<MaterialDto> =
-        materialRepository.findAllByDeleted(showDeleted)
-            .map { material ->
-                MaterialDto(
-                    id = material.id,
-                    name = material.name,
-                    materialCategory = materialCategoryMapper.toDto(material.materialCategory),
-                    allergens = material.materialAllergens.map { allergenMapper.toDto(it.allergen) }
-                )
-            }
-
-    fun get(id: Long): MaterialDto = materialMapper.toDto(findEntity(id))
-
-    @Transactional
-    fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<MaterialDto> {
-
-        val page = materialRepository.findAllByNameContainsIgnoreCaseAndDeleted(
-            pageable.filter,
-            showDeleted,
-            PageRequest.of(
-                0,
-                20,
-                if (pageable.sortDirection != null && pageable.sortField != null) {
-                    Sort.by(pageable.sortDirection, pageable.sortField)
-                } else Sort.unsorted()
-            )
-        ).map { material ->
+        materialRepository.findAllByDeleted(showDeleted).map { material ->
             MaterialDto(
                 id = material.id,
                 name = material.name,
                 materialCategory = materialCategoryMapper.toDto(material.materialCategory),
-                allergens = material.materialAllergens.map { allergenMapper.toDto(it.allergen) }
+                allergens = material.allergens.map { allergenMapper.toDto(it) },
             )
         }
+
+    @Transactional
+    fun get(id: Long): MaterialDto = materialMapper.toDto(findEntity(id))
+
+    @Transactional
+    fun listPageable(
+        showDeleted: Boolean,
+        pageable: PageableRequest,
+    ): PageResponse<MaterialDto> {
+        val page =
+            materialRepository
+                .findAllByNameContainsIgnoreCaseAndDeleted(
+                    pageable.filter,
+                    showDeleted,
+                    PageRequest.of(
+                        0,
+                        20,
+                        if (pageable.sortDirection != null && pageable.sortField != null) {
+                            Sort.by(pageable.sortDirection, pageable.sortField)
+                        } else {
+                            Sort.unsorted()
+                        },
+                    ),
+                ).map { material ->
+                    MaterialDto(
+                        id = material.id,
+                        name = material.name,
+                        materialCategory = materialCategoryMapper.toDto(material.materialCategory),
+                        allergens = material.allergens.map { allergenMapper.toDto(it) },
+                    )
+                }
         return PageSupport.toPage(page)
     }
 
-    fun listByCategory(materialCategoryId: Long, showDeleted: Boolean): List<MaterialDto> =
-        materialRepository.findAll()
+    fun listByCategory(
+        materialCategoryId: Long,
+        showDeleted: Boolean,
+    ): List<MaterialDto> =
+        materialRepository
+            .findAll()
             .filter { showDeleted || !it.deleted }
             .filter { it.materialCategory.id == materialCategoryId }
             .map(materialMapper::toDto)
 
-    fun listByAllergens(allergenIds: List<Long>, showDeleted: Boolean): List<MaterialDto> {
+    fun listByAllergens(
+        allergenIds: List<Long>,
+        showDeleted: Boolean,
+    ): List<MaterialDto> {
         if (allergenIds.isEmpty()) return emptyList()
-        return materialRepository.findAll()
+        return materialRepository
+            .findAll()
             .filter { showDeleted || !it.deleted }
-            .filter { material -> material.materialAllergens.any { allergenIds.contains(it.allergen.id) } }
+            .filter { material -> material.allergens.any { allergenIds.contains(it.id) } }
             .map(materialMapper::toDto)
     }
 
     @Transactional
     fun create(request: MaterialRequest): MaterialDto {
-        val category = materialCategoryRepository.findById(request.materialCategoryId)
-            .orElseThrow { NoSuchElementException("Material category ${request.materialCategoryId} not found") }
+        val category =
+            materialCategoryRepository.findById(request.materialCategoryId).orElseThrow {
+                NoSuchElementException("Material category ${request.materialCategoryId} not found")
+            }
         val material = Material(name = request.name, materialCategory = category)
         applyAllergens(material, request.allergenIds)
         return materialMapper.toDto(materialRepository.save(material))
     }
 
     @Transactional
-    fun update(id: Long, request: MaterialRequest): MaterialDto {
+    fun update(
+        id: Long,
+        request: MaterialRequest,
+    ): MaterialDto {
         val material = findEntity(id)
-        val category = materialCategoryRepository.findById(request.materialCategoryId)
-            .orElseThrow { NoSuchElementException("Material category ${request.materialCategoryId} not found") }
+        val category =
+            materialCategoryRepository.findById(request.materialCategoryId).orElseThrow {
+                NoSuchElementException("Material category ${request.materialCategoryId} not found")
+            }
         material.name = request.name
         material.materialCategory = category
-        material.materialAllergens.clear()
+        material.allergens.clear()
         applyAllergens(material, request.allergenIds)
         return materialMapper.toDto(materialRepository.save(material))
     }
@@ -106,15 +126,18 @@ class MaterialService(
         materialRepository.save(material)
     }
 
-    private fun applyAllergens(material: Material, allergenIds: List<Long>) {
+    private fun applyAllergens(
+        material: Material,
+        allergenIds: List<Long>,
+    ) {
         if (allergenIds.isEmpty()) return
         val allergens = allergenRepository.findAllById(allergenIds)
-        allergens.forEach { allergen ->
-            material.materialAllergens.add(MaterialAllergen(allergen = allergen, material = material))
-        }
+        material.allergens.addAll(allergens)
     }
 
-    private fun findEntity(id: Long) = materialRepository.findById(id)
-        .orElseThrow { NoSuchElementException("Material $id not found") }
-        .also { if (it.deleted) throw NoSuchElementException("Material $id not found") }
+    private fun findEntity(id: Long) =
+        materialRepository
+            .findById(id)
+            .orElseThrow { NoSuchElementException("Material $id not found") }
+            .also { if (it.deleted) throw NoSuchElementException("Material $id not found") }
 }

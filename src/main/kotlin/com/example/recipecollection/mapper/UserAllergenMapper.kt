@@ -15,5 +15,8 @@ interface UserAllergenMapper {
 
     fun toEntity(request: UserAllergenRequest): UserAllergen
 
-    fun updateEntity(request: UserAllergenRequest, @MappingTarget entity: UserAllergen)
+    fun updateEntity(
+        request: UserAllergenRequest,
+        @MappingTarget entity: UserAllergen,
+    )
 }
