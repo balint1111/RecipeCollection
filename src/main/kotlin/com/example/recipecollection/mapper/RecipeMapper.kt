@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget
 interface RecipeMapper {
     @Mapping(target = "createdByUserId", source = "createdBy.id")
     @Mapping(target = "ingredientGroupIds", expression = "java(mapIngredientGroupIds(recipe))")
+    @Mapping(target = "isFavorite", constant = "false")
     fun toDto(recipe: Recipe): RecipeDto
 
     fun toEntity(request: RecipeRequest): Recipe

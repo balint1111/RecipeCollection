@@ -17,7 +17,10 @@ class IngredientService(
     private val ingredientGroupRepository: IngredientGroupRepository,
     private val ingredientMapper: IngredientMapper,
 ) {
-    fun list(): List<IngredientDto> = ingredientRepository.findAll().map(ingredientMapper::toDto)
+    fun list(showDeleted: Boolean): List<IngredientDto> =
+        ingredientRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .map(ingredientMapper::toDto)
 
     fun get(id: Long): IngredientDto = ingredientMapper.toDto(findEntity(id))
 
@@ -58,4 +61,5 @@ class IngredientService(
 
     private fun findEntity(id: Long) = ingredientRepository.findById(id)
         .orElseThrow { NoSuchElementException("Ingredient $id not found") }
+        .also { if (it.deleted) throw NoSuchElementException("Ingredient $id not found") }
 }

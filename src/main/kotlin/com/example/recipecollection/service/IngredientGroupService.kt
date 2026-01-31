@@ -17,7 +17,10 @@ class IngredientGroupService(
     private val recipeRepository: RecipeRepository,
     private val ingredientGroupMapper: IngredientGroupMapper,
 ) {
-    fun list(): List<IngredientGroupDto> = ingredientGroupRepository.findAll().map(ingredientGroupMapper::toDto)
+    fun list(showDeleted: Boolean): List<IngredientGroupDto> =
+        ingredientGroupRepository.findAll()
+            .filter { showDeleted || !it.deleted }
+            .map(ingredientGroupMapper::toDto)
 
     fun get(id: Long): IngredientGroupDto = ingredientGroupMapper.toDto(findEntity(id))
 
@@ -64,4 +67,5 @@ class IngredientGroupService(
 
     private fun findEntity(id: Long) = ingredientGroupRepository.findById(id)
         .orElseThrow { NoSuchElementException("Ingredient group $id not found") }
+        .also { if (it.deleted) throw NoSuchElementException("Ingredient group $id not found") }
 }
