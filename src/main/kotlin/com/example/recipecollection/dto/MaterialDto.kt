@@ -1,8 +1,6 @@
 package com.example.recipecollection.dto
 
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-
 
 data class MaterialDto(
     val id: Long?,
@@ -12,9 +10,7 @@ data class MaterialDto(
 )
 
 data class MaterialRequest(
-    @field:NotBlank
-    val name: String,
-    @field:NotNull
+    @NotBlank val name: String,
     val materialCategoryId: Long,
     val allergenIds: List<Long> = emptyList(),
 )

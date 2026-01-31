@@ -1,12 +1,6 @@
 package com.example.recipecollection.controller
 
-import com.example.recipecollection.dto.PageResponse
-import com.example.recipecollection.dto.PageableRequest
-import com.example.recipecollection.dto.RecipeDto
-import com.example.recipecollection.dto.RecipeFullRequest
-import com.example.recipecollection.dto.RecipeFullUpdateRequest
-import com.example.recipecollection.dto.RecipeRequest
-import com.example.recipecollection.dto.SortDirection
+import com.example.recipecollection.dto.*
 import com.example.recipecollection.service.RecipeService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Sort
@@ -32,12 +26,19 @@ class RecipeController(
         @RequestParam(defaultValue = "") filter: String,
         @RequestParam(required = false) sortField: String?,
         @RequestParam(required = false) sortDirection: Sort.Direction?,
-    ): PageResponse<RecipeDto> = recipeService.listPageable(
-        showDeleted,
-        justFavorites,
-        justOwn,
-        PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
-    )
+    ): PageResponse<RecipeDto> =
+        recipeService.listPageable(
+            showDeleted,
+            justFavorites,
+            justOwn,
+            PageableRequest(
+                page = page,
+                pageSize = pageSize,
+                filter = filter,
+                sortField = sortField,
+                sortDirection = sortDirection,
+            ),
+        )
 
     @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): RecipeDto = recipeService.get(id)
@@ -66,7 +67,8 @@ class RecipeController(
 
     @PostMapping("/CreateFull")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createFull(@Valid @RequestBody request: RecipeFullRequest): RecipeDto = recipeService.createFull(request)
+    fun createFull(@Valid @RequestBody request: RecipeFullRequest): RecipeDto =
+        recipeService.createFull(request)
 
     @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: RecipeRequest): RecipeDto =

@@ -13,14 +13,10 @@ data class ApplicationUserDto(
 )
 
 data class ApplicationUserRequest(
-    @NotBlank
-    val username: String,
-    @NotBlank
-    val name: String,
-    @NotBlank
-    val settlement: String,
-    @NotBlank
-    val country: String,
+    @NotBlank val username: String,
+    @NotBlank val name: String,
+    @NotBlank val settlement: String,
+    @NotBlank val country: String,
     val password: String? = null,
     val roles: Set<UserRole> = emptySet(),
 )

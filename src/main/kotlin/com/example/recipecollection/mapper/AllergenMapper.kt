@@ -9,6 +9,11 @@ import org.mapstruct.MappingTarget
 @Mapper(componentModel = "spring")
 interface AllergenMapper {
     fun toDto(entity: Allergen): AllergenDto
+
     fun toEntity(request: AllergenRequest): Allergen
-    fun updateEntity(request: AllergenRequest, @MappingTarget entity: Allergen)
+
+    fun updateEntity(
+        request: AllergenRequest,
+        @MappingTarget entity: Allergen,
+    )
 }

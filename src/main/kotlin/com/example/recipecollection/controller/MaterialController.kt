@@ -4,7 +4,6 @@ import com.example.recipecollection.dto.MaterialDto
 import com.example.recipecollection.dto.MaterialRequest
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
-import com.example.recipecollection.dto.SortDirection
 import com.example.recipecollection.service.MaterialService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Sort
@@ -28,10 +27,17 @@ class MaterialController(
         @RequestParam(defaultValue = "") filter: String,
         @RequestParam(required = false) sortField: String?,
         @RequestParam(required = false) sortDirection: Sort.Direction?,
-    ): PageResponse<MaterialDto> = materialService.listPageable(
-        showDeleted,
-        PageableRequest(page = page, pageSize = pageSize, filter = filter, sortField = sortField, sortDirection = sortDirection),
-    )
+    ): PageResponse<MaterialDto> =
+        materialService.listPageable(
+            showDeleted,
+            PageableRequest(
+                page = page,
+                pageSize = pageSize,
+                filter = filter,
+                sortField = sortField,
+                sortDirection = sortDirection,
+            ),
+        )
 
     @GetMapping("/GetById/{id}")
     fun get(@PathVariable id: Long): MaterialDto = materialService.get(id)
@@ -50,7 +56,8 @@ class MaterialController(
 
     @PostMapping("/Create")
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody request: MaterialRequest): MaterialDto = materialService.create(request)
+    fun create(@Valid @RequestBody request: MaterialRequest): MaterialDto =
+        materialService.create(request)
 
     @PutMapping("/Update/{id}")
     fun update(@PathVariable id: Long, @Valid @RequestBody request: MaterialRequest): MaterialDto =

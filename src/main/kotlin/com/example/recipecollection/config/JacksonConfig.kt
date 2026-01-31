@@ -9,11 +9,11 @@ import tools.jackson.module.kotlin.kotlinModule
 
 @Configuration
 class JacksonConfig {
-
     @Bean
-    fun objectMapper(): ObjectMapper = jsonMapper {
-        addModule(kotlinModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-    }
+    fun objectMapper(): ObjectMapper =
+        jsonMapper {
+            addModule(kotlinModule())
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+        }
 }

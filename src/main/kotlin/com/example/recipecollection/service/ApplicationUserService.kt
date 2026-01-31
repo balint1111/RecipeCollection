@@ -1,13 +1,13 @@
 package com.example.recipecollection.service
 
+import com.example.recipecollection.domain.UserRole
 import com.example.recipecollection.dto.ApplicationUserDto
 import com.example.recipecollection.dto.ApplicationUserRequest
-import com.example.recipecollection.domain.UserRole
 import com.example.recipecollection.mapper.ApplicationUserMapper
 import com.example.recipecollection.repository.ApplicationUserRepository
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.security.crypto.password.PasswordEncoder
 
 @Service
 class ApplicationUserService(
@@ -34,7 +34,10 @@ class ApplicationUserService(
     }
 
     @Transactional
-    fun update(id: Long, request: ApplicationUserRequest): ApplicationUserDto {
+    fun update(
+        id: Long,
+        request: ApplicationUserRequest,
+    ): ApplicationUserDto {
         val user = findEntity(id)
         val existingRoles = user.roles.toMutableSet()
         val existingPassword = user.password
@@ -43,11 +46,12 @@ class ApplicationUserService(
             user.roles = existingRoles
         }
         val rawPassword = request.password?.trim()
-        user.password = if (rawPassword.isNullOrEmpty()) {
-            existingPassword
-        } else {
-            passwordEncoder.encode(rawPassword)!!
-        }
+        user.password =
+            if (rawPassword.isNullOrEmpty()) {
+                existingPassword
+            } else {
+                passwordEncoder.encode(rawPassword)!!
+            }
         return userMapper.toDto(userRepository.save(user))
     }
 
@@ -58,6 +62,6 @@ class ApplicationUserService(
         userRepository.save(user)
     }
 
-    private fun findEntity(id: Long) = userRepository.findById(id)
-        .orElseThrow { NoSuchElementException("User $id not found") }
+    private fun findEntity(id: Long) =
+        userRepository.findById(id).orElseThrow { NoSuchElementException("User $id not found") }
 }

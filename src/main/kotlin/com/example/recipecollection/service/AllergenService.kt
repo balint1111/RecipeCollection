@@ -19,17 +19,25 @@ class AllergenService(
     private val currentUserService: CurrentUserService,
 ) {
     fun list(showDeleted: Boolean): List<AllergenDto> =
-        allergenRepository.findAll()
-            .filter { showDeleted || !it.deleted }
-            .map(allergenMapper::toDto)
+        allergenRepository.findAll().filter { showDeleted || !it.deleted }.map(allergenMapper::toDto)
 
     fun get(id: Long): AllergenDto = allergenMapper.toDto(findEntity(id))
 
-    fun listPageable(showDeleted: Boolean, pageable: PageableRequest): PageResponse<AllergenDto> {
-        val filtered = allergenRepository.findAll()
-            .filter { showDeleted || !it.deleted }
-            .filter { it.name.contains(pageable.filter, ignoreCase = true) }
-        val sorted = PageSupport.applySorting(filtered, pageable, mapOf("id" to { it.id }, "name" to { it.name }))
+    fun listPageable(
+        showDeleted: Boolean,
+        pageable: PageableRequest,
+    ): PageResponse<AllergenDto> {
+        val filtered =
+            allergenRepository
+                .findAll()
+                .filter { showDeleted || !it.deleted }
+                .filter { it.name.contains(pageable.filter, ignoreCase = true) }
+        val sorted =
+            PageSupport.applySorting(
+                filtered,
+                pageable,
+                mapOf("id" to { it.id }, "name" to { it.name }),
+            )
         return PageSupport.toPage(sorted.map(allergenMapper::toDto), pageable)
     }
 
@@ -51,8 +59,9 @@ class AllergenService(
     @Transactional
     fun deleteAllergen(allergenId: Long) {
         val user = currentUserService.requireCurrentUser()
-        val existing = userAllergenRepository.findByUserIdAndAllergenId(user.id!!, allergenId)
-            ?: throw NoSuchElementException("Allergen $allergenId not found for user")
+        val existing =
+            userAllergenRepository.findByUserIdAndAllergenId(user.id!!, allergenId)
+                ?: throw NoSuchElementException("Allergen $allergenId not found for user")
         existing.deleted = true
         userAllergenRepository.save(existing)
     }
@@ -64,7 +73,10 @@ class AllergenService(
     }
 
     @Transactional
-    fun update(id: Long, request: AllergenRequest): AllergenDto {
+    fun update(
+        id: Long,
+        request: AllergenRequest,
+    ): AllergenDto {
         val allergen = findEntity(id)
         allergenMapper.updateEntity(request, allergen)
         return allergenMapper.toDto(allergenRepository.save(allergen))
@@ -77,7 +89,9 @@ class AllergenService(
         allergenRepository.save(allergen)
     }
 
-    private fun findEntity(id: Long) = allergenRepository.findById(id)
-        .orElseThrow { NoSuchElementException("Allergen $id not found") }
-        .also { if (it.deleted) throw NoSuchElementException("Allergen $id not found") }
+    private fun findEntity(id: Long) =
+        allergenRepository
+            .findById(id)
+            .orElseThrow { NoSuchElementException("Allergen $id not found") }
+            .also { if (it.deleted) throw NoSuchElementException("Allergen $id not found") }
 }

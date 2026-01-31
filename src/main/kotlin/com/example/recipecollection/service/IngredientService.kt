@@ -18,7 +18,8 @@ class IngredientService(
     private val ingredientMapper: IngredientMapper,
 ) {
     fun list(showDeleted: Boolean): List<IngredientDto> =
-        ingredientRepository.findAll()
+        ingredientRepository
+            .findAll()
             .filter { showDeleted || !it.deleted }
             .map(ingredientMapper::toDto)
 
@@ -26,18 +27,26 @@ class IngredientService(
 
     @Transactional
     fun create(request: IngredientRequest): IngredientDto {
-        val material = materialRepository.findById(request.materialId)
-            .orElseThrow { NoSuchElementException("Material ${request.materialId} not found") }
-        val ingredient = Ingredient(material = material, unit = request.unit, quantity = request.quantity)
+        val material =
+            materialRepository.findById(request.materialId).orElseThrow {
+                NoSuchElementException("Material ${request.materialId} not found")
+            }
+        val ingredient =
+            Ingredient(material = material, unit = request.unit, quantity = request.quantity)
         applyGroup(ingredient, request.ingredientGroupId)
         return ingredientMapper.toDto(ingredientRepository.save(ingredient))
     }
 
     @Transactional
-    fun update(id: Long, request: IngredientRequest): IngredientDto {
+    fun update(
+        id: Long,
+        request: IngredientRequest,
+    ): IngredientDto {
         val ingredient = findEntity(id)
-        val material = materialRepository.findById(request.materialId)
-            .orElseThrow { NoSuchElementException("Material ${request.materialId} not found") }
+        val material =
+            materialRepository.findById(request.materialId).orElseThrow {
+                NoSuchElementException("Material ${request.materialId} not found")
+            }
         ingredient.material = material
         ingredient.unit = request.unit
         ingredient.quantity = request.quantity
@@ -52,14 +61,21 @@ class IngredientService(
         ingredientRepository.save(ingredient)
     }
 
-    private fun applyGroup(ingredient: Ingredient, ingredientGroupId: Long?) {
-        ingredient.ingredientGroup = ingredientGroupId?.let { id ->
-            ingredientGroupRepository.findById(id)
-                .orElseThrow { NoSuchElementException("Ingredient group $id not found") }
-        }
+    private fun applyGroup(
+        ingredient: Ingredient,
+        ingredientGroupId: Long?,
+    ) {
+        ingredient.ingredientGroup =
+            ingredientGroupId?.let { id ->
+                ingredientGroupRepository.findById(id).orElseThrow {
+                    NoSuchElementException("Ingredient group $id not found")
+                }
+            }
     }
 
-    private fun findEntity(id: Long) = ingredientRepository.findById(id)
-        .orElseThrow { NoSuchElementException("Ingredient $id not found") }
-        .also { if (it.deleted) throw NoSuchElementException("Ingredient $id not found") }
+    private fun findEntity(id: Long) =
+        ingredientRepository
+            .findById(id)
+            .orElseThrow { NoSuchElementException("Ingredient $id not found") }
+            .also { if (it.deleted) throw NoSuchElementException("Ingredient $id not found") }
 }

@@ -24,8 +24,10 @@ class ApplicationUserController(
         applicationUserService.create(request)
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @Valid @RequestBody request: ApplicationUserRequest): ApplicationUserDto =
-        applicationUserService.update(id, request)
+    fun update(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: ApplicationUserRequest,
+    ): ApplicationUserDto = applicationUserService.update(id, request)
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
