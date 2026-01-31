@@ -1,14 +1,20 @@
 package com.example.recipecollection.service
 
+import com.example.recipecollection.domain.Ingredient
+import com.example.recipecollection.domain.IngredientGroup
 import com.example.recipecollection.domain.Recipe
 import com.example.recipecollection.domain.UserFavorite
 import com.example.recipecollection.dto.PageResponse
 import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.dto.RecipeDto
+import com.example.recipecollection.dto.IngredientGroupFullRequest
+import com.example.recipecollection.dto.RecipeFullRequest
+import com.example.recipecollection.dto.RecipeFullUpdateRequest
 import com.example.recipecollection.dto.RecipeRequest
 import com.example.recipecollection.mapper.RecipeMapper
 import com.example.recipecollection.repository.ApplicationUserRepository
 import com.example.recipecollection.repository.IngredientGroupRepository
+import com.example.recipecollection.repository.MaterialRepository
 import com.example.recipecollection.repository.RecipeRepository
 import com.example.recipecollection.repository.UserFavoriteRepository
 import org.springframework.stereotype.Service
@@ -19,6 +25,7 @@ class RecipeService(
     private val recipeRepository: RecipeRepository,
     private val userRepository: ApplicationUserRepository,
     private val ingredientGroupRepository: IngredientGroupRepository,
+    private val materialRepository: MaterialRepository,
     private val recipeMapper: RecipeMapper,
     private val userFavoriteRepository: UserFavoriteRepository,
     private val currentUserService: CurrentUserService,
@@ -135,6 +142,36 @@ class RecipeService(
     }
 
     @Transactional
+    fun createFull(request: RecipeFullRequest): RecipeDto {
+        val user = currentUserService.requireCurrentUser()
+        val recipe = Recipe(
+            code = request.code,
+            name = request.name,
+            description = request.description,
+            preparationDuration = request.preparationDuration,
+            cookingDuration = request.cookingDuration,
+            createdBy = user,
+            imgBase64 = request.imgBase64,
+        )
+        applyIngredientGroupsFull(recipe, request.ingredientGroups)
+        return recipeMapper.toDto(recipeRepository.save(recipe))
+    }
+
+    @Transactional
+    fun updateFull(request: RecipeFullUpdateRequest): RecipeDto {
+        val recipe = findEntity(request.id)
+        recipe.code = request.code
+        recipe.name = request.name
+        recipe.description = request.description
+        recipe.preparationDuration = request.preparationDuration
+        recipe.cookingDuration = request.cookingDuration
+        recipe.imgBase64 = request.imgBase64
+        recipe.ingredientGroups.clear()
+        applyIngredientGroupsFull(recipe, request.ingredientGroups)
+        return recipeMapper.toDto(recipeRepository.save(recipe))
+    }
+
+    @Transactional
     fun delete(id: Long) {
         val recipe = findEntity(id)
         recipe.deleted = true
@@ -146,6 +183,24 @@ class RecipeService(
         val groups = ingredientGroupRepository.findAllById(groupIds)
         groups.forEach { group ->
             group.recipe = recipe
+            recipe.ingredientGroups.add(group)
+        }
+    }
+
+    private fun applyIngredientGroupsFull(recipe: Recipe, groups: List<IngredientGroupFullRequest>) {
+        if (groups.isEmpty()) return
+        groups.forEach { groupRequest ->
+            val group = IngredientGroup(name = groupRequest.name).also { it.recipe = recipe }
+            groupRequest.ingredients.forEach { ingredientRequest ->
+                val material = materialRepository.findById(ingredientRequest.materialId)
+                    .orElseThrow { NoSuchElementException("Material ${ingredientRequest.materialId} not found") }
+                val ingredient = Ingredient(
+                    material = material,
+                    unit = ingredientRequest.unit,
+                    quantity = ingredientRequest.quantity,
+                ).also { it.ingredientGroup = group }
+                group.ingredients.add(ingredient)
+            }
             recipe.ingredientGroups.add(group)
         }
     }
