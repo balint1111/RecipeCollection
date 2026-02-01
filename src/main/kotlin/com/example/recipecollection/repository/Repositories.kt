@@ -7,9 +7,21 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface AllergenRepository : JpaRepository<Allergen, Long>
+interface AllergenRepository : JpaRepository<Allergen, Long> {
+    fun findAllByNameContainsIgnoreCaseAndDeleted(
+        name: String?,
+        deleted: Boolean,
+        pageable: Pageable,
+    ): Page<Allergen>
+}
 
-interface MaterialCategoryRepository : JpaRepository<MaterialCategory, Long>
+interface MaterialCategoryRepository : JpaRepository<MaterialCategory, Long> {
+    fun findAllByNameContainsIgnoreCaseAndDeleted(
+        name: String?,
+        deleted: Boolean,
+        pageable: Pageable,
+    ): Page<MaterialCategory>
+}
 
 interface MaterialRepository : JpaRepository<Material, Long> {
     fun findAllByNameContainsIgnoreCaseAndDeleted(
