@@ -8,6 +8,8 @@ import com.example.recipecollection.dto.PageableRequest
 import com.example.recipecollection.mapper.AllergenMapper
 import com.example.recipecollection.repository.AllergenRepository
 import com.example.recipecollection.repository.UserAllergenRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,18 +29,22 @@ class AllergenService(
         showDeleted: Boolean,
         pageable: PageableRequest,
     ): PageResponse<AllergenDto> {
-        val filtered =
+        val page =
             allergenRepository
-                .findAll()
-                .filter { showDeleted || !it.deleted }
-                .filter { it.name.contains(pageable.filter, ignoreCase = true) }
-        val sorted =
-            PageSupport.applySorting(
-                filtered,
-                pageable,
-                mapOf("id" to { it.id }, "name" to { it.name }),
-            )
-        return PageSupport.toPage(sorted.map(allergenMapper::toDto), pageable)
+                .findAllByNameContainsIgnoreCaseAndDeleted(
+                    pageable.filter,
+                    showDeleted,
+                    PageRequest.of(
+                        (pageable.page - 1).coerceAtLeast(0),
+                        pageable.pageSize.coerceAtLeast(1),
+                        if (pageable.sortDirection != null && pageable.sortField != null) {
+                            Sort.by(pageable.sortDirection, pageable.sortField)
+                        } else {
+                            Sort.unsorted()
+                        },
+                    ),
+                ).map(allergenMapper::toDto)
+        return PageSupport.toPage(page)
     }
 
     @Transactional
